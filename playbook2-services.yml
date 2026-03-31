@@ -1,0 +1,38 @@
+---
+- name: Start and enable all services
+  hosts: localhost
+  connection: local
+  become: true
+
+  tasks:
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Verify Docker is running
+      command: docker ps
+      register: docker_ps
+
+    - name: Print Docker status
+      debug:
+        msg: "{{ docker_ps.stdout }}"
+
+    - name: Install k3s (lightweight Kubernetes)
+      shell: curl -sfL https://get.k3s.io | sh -
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Wait for k3s to be ready
+      wait_for:
+        path: /etc/rancher/k3s/k3s.yaml
+        timeout: 60
+
+    - name: Verify k3s is running
+      command: k3s kubectl get nodes
+      register: k3s_out
+
+    - name: Print k3s node status
+      debug:
+        msg: "{{ k3s_out.stdout }}"

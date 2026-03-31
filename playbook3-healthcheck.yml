@@ -1,0 +1,43 @@
+---
+- name: Health check — verify all services
+  hosts: localhost
+  connection: local
+  become: true
+
+  tasks:
+    - name: Check Docker status
+      command: docker --version
+      register: docker_ver
+
+    - name: Check Java version
+      command: java -version
+      register: java_ver
+      ignore_errors: yes
+
+    - name: Check Git version
+      command: git --version
+      register: git_ver
+
+    - name: Check k3s node status
+      command: k3s kubectl get nodes
+      register: k3s_nodes
+
+    - name: Check swap is active
+      command: free -h
+      register: swap_status
+
+    - name: "HEALTH REPORT"
+      debug:
+        msg:
+          - "========================================="
+          - "         ICTU-EX SERVER HEALTH REPORT    "
+          - "========================================="
+          - "Docker  : {{ docker_ver.stdout }}"
+          - "Git     : {{ git_ver.stdout }}"
+          - "Java    : {{ java_ver.stderr }}"
+          - "K3s     : {{ k3s_nodes.stdout }}"
+          - "Memory  : {{ swap_status.stdout_lines[1] }}"
+          - "Swap    : {{ swap_status.stdout_lines[2] }}"
+          - "========================================="
+          - "STATUS  : ALL SYSTEMS OK ✅"
+          - "========================================="

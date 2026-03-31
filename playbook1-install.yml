@@ -1,0 +1,50 @@
+---
+- name: Install all project dependencies
+  hosts: localhost
+  connection: local
+  become: false
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: Install Java 21
+      apt:
+        name: openjdk-21-jdk
+        state: present
+      become: true
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+      become: true
+
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+      become: true
+
+    - name: Install curl
+      apt:
+        name: curl
+        state: present
+      become: true
+
+    - name: Verify Java installation
+      command: java -version
+      register: java_out
+      ignore_errors: yes
+
+    - name: Verify Docker installation
+      command: docker --version
+      register: docker_out
+      ignore_errors: yes
+
+    - name: Print versions
+      debug:
+        msg:
+          - "Docker: {{ docker_out.stderr | default(docker_out.stdout) }}"
