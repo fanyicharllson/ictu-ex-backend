@@ -5,34 +5,35 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "com.fanyiadrien"
-version = "0.0.1-SNAPSHOT"
-description = "ictu-ex-backend"
+allprojects {
+    group = "com.fanyiadrien"
+    version = "0.0.1-SNAPSHOT"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+    repositories {
+        mavenCentral()
     }
 }
 
-repositories {
-    mavenCentral()
-}
+// Configuration shared by ALL submodules (Auth, Listing, etc.)
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+    apply(plugin = "io.spring.dependency-management")
 
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+    dependencies {
+        implementation("org.jetbrains.kotlin:kotlin-reflect")
+        implementation("org.springframework.boot:spring-boot-starter")
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+        // Spring Modulith Core - enforces the internal/public rules
+        implementation("org.springframework.modulith:spring-modulith-starter-core:1.3.0")
+
+        testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testImplementation("org.springframework.modulith:spring-modulith-starter-test:1.3.0")
     }
-}
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.addAll("-Xjsr305=strict")
+        }
+    }
 }
