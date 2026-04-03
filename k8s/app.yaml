@@ -20,25 +20,38 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://postgres:5432/ictuex
+              value: "jdbc:postgresql://postgres:5432/ictuex"
             - name: SPRING_DATASOURCE_USERNAME
-              value: ictuex_user
+              value: "ictuex_user"
             - name: SPRING_DATASOURCE_PASSWORD
-              value: ictuex_pass
+              value: "ictuex_pass"
             - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
-              value: kafka:9092
+              value: "kafka:9092"
+            # Override Hibernate to 'update' so it builds the schema on first run
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: "update"
+            # Ensure Flyway is active for your new migration files
+            - name: SPRING_FLYWAY_ENABLED
+              value: "true"
           readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60  # Increased to 60s
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 60
+            initialDelaySeconds: 120 # Increased to 120s
             periodSeconds: 15
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
