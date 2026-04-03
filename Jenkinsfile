@@ -19,9 +19,12 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔨 Building application...'
+                // Add this line below to fix the permission
+                sh 'chmod +x gradlew'
                 sh './gradlew build -x test'
             }
         }
+
 
         stage('Test') {
             steps {
