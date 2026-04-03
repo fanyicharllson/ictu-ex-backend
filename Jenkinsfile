@@ -19,12 +19,10 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔨 Building application...'
-                // Add this line below to fix the permission
                 sh 'chmod +x gradlew'
-                sh './gradlew build -x test'
+                sh './gradlew :ictu-ex-app:bootJar -x test'
             }
         }
-
 
         stage('Test') {
             steps {
@@ -53,18 +51,16 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 echo '🐳 Building Docker image...'
-                sh './gradlew :ictu-ex-app:bootJar'
-                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
-                sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest'
                 sh '''
                     echo $DOCKERHUB_CREDENTIALS_PSW | \
                     docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
                 '''
+                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+                sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest'
                 sh 'docker push ${IMAGE_NAME}:${IMAGE_TAG}'
                 sh 'docker push ${IMAGE_NAME}:latest'
             }
         }
-
         stage('Deploy to Kubernetes') {
             steps {
                 echo '🚀 Deploying to k3s...'

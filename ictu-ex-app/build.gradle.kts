@@ -1,7 +1,12 @@
 plugins {
     id("org.springframework.boot")
+    id("com.google.cloud.tools.jib") version "3.4.4"
+
 }
 
+springBoot {
+    mainClass.set("com.fanyiadrien.ictuexbackend.IctuExBackendApplicationKt")
+}
 dependencies {
     implementation(project(":shared"))
     implementation(project(":auth"))
