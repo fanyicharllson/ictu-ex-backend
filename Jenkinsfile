@@ -15,7 +15,6 @@ pipeline {
                 checkout scm
             }
         }
-
         stage('Build') {
             steps {
                 echo '🔨 Building application...'
@@ -23,7 +22,6 @@ pipeline {
                 sh './gradlew :ictu-ex-app:bootJar -x test'
             }
         }
-
         stage('Test') {
             steps {
                 echo '🧪 Running tests...'
