@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "4.0.5"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.8.3" // Kover: is a JetBrains-maintained Gradle plugin designed to measure code coverage for Kotlin projects
+    kotlin("plugin.jpa") version "2.2.21"
 }
 
 val springBootVersion = "4.0.5"
@@ -64,4 +65,10 @@ kover {
             }
         }
     }
+}
+dependencies {
+    implementation(kotlin("stdlib"))
+}
+repositories {
+    mavenCentral()
 }
