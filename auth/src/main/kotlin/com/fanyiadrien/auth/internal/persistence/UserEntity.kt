@@ -6,7 +6,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "users")
-internal class UserEntity(
+class UserEntity(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,4 +38,4 @@ internal class UserEntity(
     val updatedAt: Instant = Instant.now()
 )
 
-internal enum class UserType { SELLER, BUYER }
+enum class UserType { SELLER, BUYER }

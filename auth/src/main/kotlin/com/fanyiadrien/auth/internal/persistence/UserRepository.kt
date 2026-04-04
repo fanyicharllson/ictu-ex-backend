@@ -3,7 +3,7 @@ package com.fanyiadrien.auth.internal.persistence
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
-internal interface UserRepository : JpaRepository<UserEntity, UUID> {
+interface UserRepository : JpaRepository<UserEntity, UUID> {
     fun findByEmail(email: String): UserEntity?
     fun findByStudentId(studentId: String): UserEntity?
     fun existsByEmail(email: String): Boolean
