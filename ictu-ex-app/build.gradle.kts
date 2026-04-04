@@ -23,6 +23,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("org.springframework.boot:spring-boot-starter-security")
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
