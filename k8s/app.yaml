@@ -26,30 +26,13 @@ spec:
             - name: SPRING_DATASOURCE_PASSWORD
               value: "ictuex_pass"
             - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
-              value: "kafka:9092"
+              value: "kafka.ictu-ex.svc.cluster.local:9092"
             # Override Hibernate to 'update' so it builds the schema on first run
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: "update"
             # Ensure Flyway is active for your new migration files
             - name: SPRING_FLYWAY_ENABLED
               value: "true"
-            # JWT Configuration from Secrets
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: ictu-ex-secrets
-                  key: JWT_SECRET
-            - name: JWT_EXPIRES
-              valueFrom:
-                secretKeyRef:
-                  name: ictu-ex-secrets
-                  key: JWT_EXPIRES
-            # Email/Notification Configuration from Secrets
-            - name: RESEND_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: ictu-ex-secrets
-                  key: RESEND_API_KEY
           readinessProbe:
             httpGet:
               path: /actuator/health
