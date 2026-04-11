@@ -22,8 +22,8 @@ class UserEntity(
     val studentId: String,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", nullable = false)
-    val userType: UserType,
+    @Column(name = "user_type", nullable = false, columnDefinition = "VARCHAR(255)")
+    val userType: UserType = UserType.STUDENT,
 
     @Column(name = "password_hash", nullable = false)
     val passwordHash: String,
@@ -38,4 +38,4 @@ class UserEntity(
     val updatedAt: Instant = Instant.now()
 )
 
-enum class UserType { SELLER, BUYER }
+enum class UserType { STUDENT }

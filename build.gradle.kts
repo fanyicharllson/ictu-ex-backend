@@ -1,13 +1,13 @@
 plugins {
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.spring") version "2.2.21"
-    id("org.springframework.boot") version "4.0.5"
+    kotlin("jvm") version "2.0.21"
+    kotlin("plugin.spring") version "2.0.21"
+    id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.jetbrains.kotlinx.kover") version "0.8.3" // Kover: is a JetBrains-maintained Gradle plugin designed to measure code coverage for Kotlin projects
-    kotlin("plugin.jpa") version "2.2.21"
+    id("org.jetbrains.kotlinx.kover") version "0.8.3"
+    kotlin("plugin.jpa") version "2.0.21"
 }
 
-val springBootVersion = "4.0.5"
+val springBootVersion = "3.4.4"
 
 allprojects {
     group = "com.fanyiadrien"
@@ -18,7 +18,6 @@ allprojects {
     }
 }
 
-// Configuration shared by ALL submodules (Auth, Listing, etc.)
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
@@ -33,8 +32,6 @@ subprojects {
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.springframework.boot:spring-boot-starter")
-
-        // Spring Modulith Core - enforces the internal/public rules
         implementation("org.springframework.modulith:spring-modulith-starter-core:1.3.0")
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -42,9 +39,7 @@ subprojects {
     }
 
     kotlin {
-        compilerOptions {
-            freeCompilerArgs.addAll("-Xjsr305=strict")
-        }
+        jvmToolchain(17)
     }
 }
 
@@ -61,7 +56,7 @@ kover {
         }
         verify {
             rule {
-                minBound(90) // 90% coverage gate
+                minBound(90)
             }
         }
     }
