@@ -33,6 +33,21 @@ spec:
             # Ensure Flyway is active for your new migration files
             - name: SPRING_FLYWAY_ENABLED
               value: "true"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ictu-ex-secrets
+                  key: JWT_SECRET
+            - name: JWT_EXPIRES
+              valueFrom:
+                secretKeyRef:
+                  name: ictu-ex-secrets
+                  key: JWT_EXPIRES
+            - name: RESEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ictu-ex-secrets
+                  key: RESEND_API_KEY
           readinessProbe:
             httpGet:
               path: /actuator/health
