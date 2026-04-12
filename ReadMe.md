@@ -297,7 +297,8 @@ Jenkins pipeline (Jenkinsfile) runs on every push to `main`:
 
 ## Team
 
-- **Team Lead / Architect:** Fanyi Charllson Adrienne
+- **Team Lead / Architect:** Fanyi Charllson
+-  **Team member/Collaborator:**  Adrien Tello Nathan
 - **Institution:** ICT University Cameroon
 - **Course:** Software Architecture
 - **GitHub:** [fanyicharllson/ictu-ex-backend](https://github.com/fanyicharllson/ictu-ex-backend)
