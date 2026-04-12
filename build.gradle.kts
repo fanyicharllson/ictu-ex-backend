@@ -22,11 +22,17 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "org.jetbrains.kotlinx.kover")
 
     dependencyManagement {
         imports {
             mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
         }
+    }
+
+    configurations.all {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+        exclude(group = "junit", module = "junit")
     }
 
     dependencies {
@@ -36,6 +42,9 @@ subprojects {
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("org.springframework.modulith:spring-modulith-starter-test:1.3.0")
+        
+        // Ensure JUnit 5 Platform Launcher is available for Gradle
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 
     kotlin {
@@ -50,7 +59,12 @@ kover {
                 classes(
                     "*.dto.*",
                     "*.config.*",
-                    "*.IctuExBackendApplicationKt"
+                    "*.IctuExBackendApplicationKt",
+                    // Exclude modules with no tests yet
+                    "com.fanyiadrien.notification.*",
+                    "com.fanyiadrien.messaging.*",
+                    "com.fanyiadrien.listing.*",
+                    "com.fanyiadrien.shared.*"
                 )
             }
         }

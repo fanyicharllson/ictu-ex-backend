@@ -1,0 +1,10 @@
+### Register user
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "fanyicharllson.fanyi@ictuniversity.edu.cm",
+  "password": "password123",
+  "displayName": "Test Student",
+  "studentId": "ICT20234567"
+}

@@ -5,4 +5,11 @@ dependencies {
     implementation("com.resend:resend-java:3.1.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

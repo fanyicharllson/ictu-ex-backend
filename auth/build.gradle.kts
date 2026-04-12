@@ -9,12 +9,16 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.flywaydb:flyway-core")
     
-    // Explicitly add Jackson Kotlin module for DTO deserialization
+    // Jackson Kotlin module for DTO deserialization
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     runtimeOnly("org.postgresql:postgresql")
+    
+    // Test dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    
     implementation(kotlin("stdlib"))
 
     //jwt dependencies
@@ -24,4 +28,7 @@ dependencies {
 }
 repositories {
     mavenCentral()
+}
+tasks.test {
+    useJUnitPlatform()
 }

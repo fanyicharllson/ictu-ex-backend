@@ -61,7 +61,7 @@ internal class AuthServiceImpl(
         )
 
         val token = jwtService.generateToken(user.id!!, user.email)
-        return AuthResult(token = token, user = user.toAuthUser())
+        return AuthResult(token = token, user = user.toAuthUser(), message = "Registered successfully!")
     }
 
     override fun login(email: String, password: String): AuthResult {
@@ -72,7 +72,7 @@ internal class AuthServiceImpl(
             throw IllegalArgumentException("Invalid email or password")
 
         val token = jwtService.generateToken(user.id!!, user.email)
-        return AuthResult(token = token, user = user.toAuthUser())
+        return AuthResult(token = token, user = user.toAuthUser(), message = "Login successfully!")
     }
 
     override fun validateToken(token: String): AuthUser? {

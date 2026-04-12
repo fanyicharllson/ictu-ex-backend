@@ -15,5 +15,6 @@ interface AuthService {
 
 data class AuthResult(
     val token: String,
-    val user: AuthUser
+    val user: AuthUser,
+    val message: String
 )
