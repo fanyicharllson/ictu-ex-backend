@@ -38,4 +38,8 @@ class UserEntity(
     val updatedAt: Instant = Instant.now()
 )
 
-enum class UserType { STUDENT }
+enum class UserType {
+    STUDENT,
+    BUYER,
+    SELLER
+}

@@ -13,8 +13,9 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.patch
+import org.springframework.test.web.servlet.post
 import java.util.UUID
 
 @WebMvcTest(AuthController::class)
@@ -132,6 +133,34 @@ class AuthControllerTest {
             header("Authorization", "Bearer mock.jwt.token")
         }.andExpect {
             status { isOk() }
+        }
+    }
+
+    @Test
+    fun `updateUserType returns 200 with valid request`() {
+        val updatedUser = mockUser.copy(userType = "BUYER")
+        whenever(authService.updateUserType(any(), any())).thenReturn(updatedUser)
+
+        mockMvc.patch("/api/auth/user-type") {
+            header("Authorization", "Bearer mock.jwt.token")
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(UpdateUserTypeRequest(userType = "BUYER"))
+        }.andExpect {
+            status { isOk() }
+        }
+    }
+
+    @Test
+    fun `updateUserType returns 400 for invalid type`() {
+        whenever(authService.updateUserType(any(), any()))
+            .thenThrow(IllegalArgumentException("User type must be STUDENT, BUYER or SELLER"))
+
+        mockMvc.patch("/api/auth/user-type") {
+            header("Authorization", "Bearer mock.jwt.token")
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(UpdateUserTypeRequest(userType = "HACKER"))
+        }.andExpect {
+            status { isBadRequest() }
         }
     }
 }

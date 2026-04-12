@@ -204,6 +204,62 @@ class AuthServiceImplTest {
         verify(userRepository, never()).findById(any())
     }
 
+    // ==================== UPDATE USER TYPE TESTS ====================
+
+    @Test
+    fun `updateUserType succeeds for valid token and type`() {
+        val userId = UUID.randomUUID()
+        val existingUser = buildUserEntity(id = userId)
+        val updatedUser = UserEntity(
+            id = userId,
+            email = existingUser.email,
+            displayName = existingUser.displayName,
+            studentId = existingUser.studentId,
+            userType = UserType.BUYER,
+            passwordHash = existingUser.passwordHash,
+            profileImageUrl = existingUser.profileImageUrl,
+            createdAt = existingUser.createdAt
+        )
+
+        whenever(jwtService.isTokenValid("valid.token")).thenReturn(true)
+        whenever(jwtService.extractUserId("valid.token")).thenReturn(userId)
+        whenever(userRepository.findById(userId)).thenReturn(java.util.Optional.of(existingUser))
+        whenever(userRepository.save(any())).thenReturn(updatedUser)
+
+        val result = authService.updateUserType("valid.token", "buyer")
+
+        assertEquals("BUYER", result.userType)
+    }
+
+    @Test
+    fun `updateUserType throws exception for invalid token`() {
+        whenever(jwtService.isTokenValid("bad.token")).thenReturn(false)
+
+        val exception = assertThrows<IllegalArgumentException> {
+            authService.updateUserType("bad.token", "BUYER")
+        }
+
+        assertEquals("Invalid token", exception.message)
+        verify(userRepository, never()).findById(any())
+    }
+
+    @Test
+    fun `updateUserType throws exception for unsupported type`() {
+        val userId = UUID.randomUUID()
+        val existingUser = buildUserEntity(id = userId)
+
+        whenever(jwtService.isTokenValid("valid.token")).thenReturn(true)
+        whenever(jwtService.extractUserId("valid.token")).thenReturn(userId)
+        whenever(userRepository.findById(userId)).thenReturn(java.util.Optional.of(existingUser))
+
+        val exception = assertThrows<IllegalArgumentException> {
+            authService.updateUserType("valid.token", "ADMIN")
+        }
+
+        assertEquals("User type must be STUDENT, BUYER or SELLER", exception.message)
+        verify(userRepository, never()).save(any())
+    }
+
     // ==================== HELPER ====================
 
     private fun buildUserEntity(

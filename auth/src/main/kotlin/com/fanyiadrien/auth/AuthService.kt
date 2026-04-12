@@ -11,6 +11,8 @@ interface AuthService {
     fun login(email: String, password: String): AuthResult
 
     fun validateToken(token: String): AuthUser?
+
+    fun updateUserType(token: String, userType: String): AuthUser
 }
 
 data class AuthResult(

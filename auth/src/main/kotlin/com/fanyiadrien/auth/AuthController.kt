@@ -34,6 +34,16 @@ class AuthController(private val authService: AuthService) {
             ResponseEntity.notFound().build<Void>()
         }
     }
+
+    @PatchMapping("/user-type")
+    fun updateUserType(
+        @RequestHeader("Authorization") token: String,
+        @RequestBody request: UpdateUserTypeRequest
+    ): ResponseEntity<AuthUser> {
+        val bearerToken = token.removePrefix("Bearer ")
+        val updatedUser = authService.updateUserType(bearerToken, request.userType)
+        return ResponseEntity.ok(updatedUser)
+    }
 }
 
 data class RegisterRequest(
@@ -46,4 +56,8 @@ data class RegisterRequest(
 data class LoginRequest(
     val email: String,
     val password: String
+)
+
+data class UpdateUserTypeRequest(
+    val userType: String
 )

@@ -11,6 +11,7 @@ import com.fanyiadrien.shared.kafka.EventPublisher
 import com.fanyiadrien.shared.kafka.KafkaTopics
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 internal class AuthServiceImpl(
@@ -81,6 +82,34 @@ internal class AuthServiceImpl(
         return userRepository.findById(userId).orElse(null)?.toAuthUser()
     }
 
+    override fun updateUserType(token: String, userType: String): AuthUser {
+        if (!jwtService.isTokenValid(token)) {
+            throw IllegalArgumentException("Invalid token")
+        }
+
+        val userId = jwtService.extractUserId(token)
+        val existingUser = userRepository.findById(userId).orElseThrow {
+            IllegalArgumentException("User not found")
+        }
+
+        val parsedType = parseUserType(userType)
+        val updatedUser = userRepository.save(
+            UserEntity(
+                id = existingUser.id,
+                email = existingUser.email,
+                displayName = existingUser.displayName,
+                studentId = existingUser.studentId,
+                userType = parsedType,
+                passwordHash = existingUser.passwordHash,
+                profileImageUrl = existingUser.profileImageUrl,
+                createdAt = existingUser.createdAt,
+                updatedAt = Instant.now()
+            )
+        )
+
+        return updatedUser.toAuthUser()
+    }
+
     private fun UserEntity.toAuthUser() = AuthUser(
         id = id!!,
         email = email,
@@ -91,6 +120,14 @@ internal class AuthServiceImpl(
 
     private fun isValidIctuEmail(email: String): Boolean {
         return email.trim().endsWith("@ictuniversity.edu.cm")
+    }
+
+    private fun parseUserType(userType: String): UserType {
+        return try {
+            UserType.valueOf(userType.trim().uppercase())
+        } catch (_: IllegalArgumentException) {
+            throw IllegalArgumentException("User type must be STUDENT, BUYER or SELLER")
+        }
     }
 
 }
