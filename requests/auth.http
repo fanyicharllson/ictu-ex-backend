@@ -1,10 +1,59 @@
-### Register user
-POST http://localhost:8080/api/auth/register
-Content-Type: application/json
+### Variables
+@baseUrl = http://localhost:8081
+@contentType = application/json
+
+# After running Register or Login, copy the token value and paste it below
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmOWMwNzFlMi04OTc0LTQ0MDktYjllZS05ZmViMTRhMGVlODMiLCJlbWFpbCI6InN0dWRlbnQxQGljdHVuaXZlcnNpdHkuZWR1LmNtIiwiaWF0IjoxNzc3NTY5OTQyLCJleHAiOjE3Nzc2NTYzNDJ9.ywxpGjRHRyti3gFMWsxa0SR7r8kzOryZhRkuQOXl4yA
+
+### 1. Register a new user
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
 
 {
-  "email": "fanyicharllson.fanyi@ictuniversity.edu.cm",
-  "password": "password123",
-  "displayName": "Test Student",
-  "studentId": "ICT20234567"
+  "email": "student12@ictuniversity.edu.cm",
+  "password": "SecurePassword123!",
+  "displayName": "Alice Johnson",
+  "studentId": "ICT2024004"
+}
+
+### 2. Register another user (for messaging tests)
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "student2@ictuniversity.edu.cm",
+  "password": "SecurePassword456!",
+  "displayName": "Bob Smith",
+  "studentId": "ICT2024002"
+}
+
+### 3. Login user
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "student1@ictuniversity.edu.cm",
+  "password": "SecurePassword123!"
+}
+
+### 4. Validate token
+GET {{baseUrl}}/api/auth/validate
+Authorization: Bearer {{token}}
+
+### 5. Update user type to SELLER
+PATCH {{baseUrl}}/api/auth/user-type
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "userType": "SELLER"
+}
+
+### 6. Update user type back to STUDENT
+PATCH {{baseUrl}}/api/auth/user-type
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "userType": "STUDENT"
 }

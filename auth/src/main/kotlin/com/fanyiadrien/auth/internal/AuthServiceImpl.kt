@@ -12,6 +12,7 @@ import com.fanyiadrien.shared.kafka.KafkaTopics
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.util.UUID
 
 @Service
 internal class AuthServiceImpl(
@@ -108,6 +109,10 @@ internal class AuthServiceImpl(
         )
 
         return updatedUser.toAuthUser()
+    }
+
+    override fun getUserById(userId: UUID): AuthUser? {
+        return userRepository.findById(userId).orElse(null)?.toAuthUser()
     }
 
     private fun UserEntity.toAuthUser() = AuthUser(
