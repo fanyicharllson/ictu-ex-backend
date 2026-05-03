@@ -1,5 +1,7 @@
 package com.fanyiadrien.auth
 
+import java.util.UUID
+
 interface AuthService {
     fun register(
         email: String,
@@ -13,6 +15,8 @@ interface AuthService {
     fun validateToken(token: String): AuthUser?
 
     fun updateUserType(token: String, userType: String): AuthUser
+    
+    fun getUserById(userId: UUID): AuthUser?
 }
 
 data class AuthResult(
