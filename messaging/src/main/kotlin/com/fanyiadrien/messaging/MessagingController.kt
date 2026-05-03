@@ -12,7 +12,7 @@ class MessagingController(
     private val authService: AuthService
 ) {
 
-    @PostMapping("/conversations")
+    @PostMapping("/conversations", produces = ["application/json"])
     fun startConversation(
         @RequestHeader("Authorization") token: String,
         @RequestBody request: StartConversationRequest
@@ -26,7 +26,7 @@ class MessagingController(
         return ResponseEntity.ok(conversation)
     }
 
-    @PostMapping("/conversations/{conversationId}/messages")
+    @PostMapping("/conversations/{conversationId}/messages", produces = ["application/json"])
     fun sendMessage(
         @RequestHeader("Authorization") token: String,
         @PathVariable conversationId: UUID,
@@ -41,7 +41,7 @@ class MessagingController(
         return ResponseEntity.ok(message)
     }
 
-    @GetMapping("/conversations/{conversationId}/messages")
+    @GetMapping("/conversations/{conversationId}/messages", produces = ["application/json"])
     fun getMessages(
         @RequestHeader("Authorization") token: String,
         @PathVariable conversationId: UUID
@@ -51,7 +51,7 @@ class MessagingController(
         return ResponseEntity.ok(messages)
     }
 
-    @GetMapping("/conversations")
+    @GetMapping("/conversations", produces = ["application/json"])
     fun getMyConversations(
         @RequestHeader("Authorization") token: String
     ): ResponseEntity<List<ConversationView>> {

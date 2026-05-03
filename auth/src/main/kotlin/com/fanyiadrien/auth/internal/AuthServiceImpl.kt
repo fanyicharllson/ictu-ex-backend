@@ -6,7 +6,8 @@ import com.fanyiadrien.auth.AuthUser
 import com.fanyiadrien.auth.internal.persistence.UserEntity
 import com.fanyiadrien.auth.internal.persistence.UserRepository
 import com.fanyiadrien.auth.internal.persistence.UserType
-import com.fanyiadrien.shared.events.UserRegisteredEvent
+import com.fanyiadrien.shared.events.VerificationCodeGeneratedEvent
+import com.fanyiadrien.shared.events.UserVerifiedEvent
 import com.fanyiadrien.shared.kafka.EventPublisher
 import com.fanyiadrien.shared.kafka.KafkaTopics
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -29,41 +30,41 @@ internal class AuthServiceImpl(
         studentId: String
     ): AuthResult {
 
-        //Check if email is valid ICTU email
         if (!isValidIctuEmail(email))
             throw IllegalArgumentException("Email must be a valid ICT University email address")
 
-        //Check if student already exit
         if (userRepository.existsByEmail(email))
             throw IllegalArgumentException("Email already registered")
 
-        //Check if ID(matrcule already exist)
         if (userRepository.existsByStudentId(studentId))
             throw IllegalArgumentException("Student ID already registered")
 
-        val user = userRepository.save(
-            UserEntity(
-                email = email,
-                displayName = displayName,
-                studentId = studentId,
-                userType = UserType.STUDENT,
-                passwordHash = passwordEncoder.encode(password)
-            )
+        val user = UserEntity(
+            email = email,
+            displayName = displayName,
+            studentId = studentId,
+            userType = UserType.STUDENT,
+            passwordHash = passwordEncoder.encode(password)
         )
+        
+        user.generateVerificationCode()
+        val savedUser = userRepository.save(user)
 
-        // Publish Kafka event — notification module will consume this
+        // Publish event for verification email
         eventPublisher.publish(
-            topic = KafkaTopics.USER_REGISTERED,
-            event = UserRegisteredEvent(
-                userId = user.id!!,
-                email = user.email,
-                displayName = user.displayName,
-                studentId = user.studentId
+            topic = KafkaTopics.VERIFICATION_CODE_GENERATED,
+            event = VerificationCodeGeneratedEvent(
+                userId = savedUser.id ?: throw IllegalStateException("User ID not generated"),
+                email = savedUser.email,
+                displayName = savedUser.displayName,
+                code = savedUser.verificationCode
+                    ?: user.verificationCode
+                    ?: throw IllegalStateException("Verification code not generated")
             )
         )
 
-        val token = jwtService.generateToken(user.id!!, user.email)
-        return AuthResult(token = token, user = user.toAuthUser(), message = "Registered successfully!")
+        val token = jwtService.generateToken(savedUser.id, savedUser.email)
+        return AuthResult(token = token, user = savedUser.toAuthUser(), message = "Registered successfully! Verification code sent to your email.")
     }
 
     override fun login(email: String, password: String): AuthResult {
@@ -73,7 +74,7 @@ internal class AuthServiceImpl(
         if (!passwordEncoder.matches(password, user.passwordHash))
             throw IllegalArgumentException("Invalid email or password")
 
-        val token = jwtService.generateToken(user.id!!, user.email)
+        val token = jwtService.generateToken(user.id ?: throw IllegalStateException("User ID is null"), user.email)
         return AuthResult(token = token, user = user.toAuthUser(), message = "Login successfully!")
     }
 
@@ -103,6 +104,9 @@ internal class AuthServiceImpl(
                 userType = parsedType,
                 passwordHash = existingUser.passwordHash,
                 profileImageUrl = existingUser.profileImageUrl,
+                verificationCode = existingUser.verificationCode,
+                verificationCodeExpiresAt = existingUser.verificationCodeExpiresAt,
+                isVerified = existingUser.isVerified,
                 createdAt = existingUser.createdAt,
                 updatedAt = Instant.now()
             )
@@ -115,8 +119,56 @@ internal class AuthServiceImpl(
         return userRepository.findById(userId).orElse(null)?.toAuthUser()
     }
 
+    override fun verifyCode(email: String, code: String): Boolean {
+        val user = userRepository.findByEmail(email) ?: throw IllegalArgumentException("User not found")
+        
+        if (user.isVerified) return true
+        
+        if (user.isCodeValid(code)) {
+            user.isVerified = true
+            user.verificationCode = null
+            user.verificationCodeExpiresAt = null
+            user.updatedAt = Instant.now()
+            val savedUser = userRepository.save(user)
+
+            eventPublisher.publish(
+                topic = KafkaTopics.USER_VERIFIED,
+                event = UserVerifiedEvent(
+                    userId = savedUser.id ?: throw IllegalStateException("User ID not generated"),
+                    email = savedUser.email,
+                    displayName = savedUser.displayName
+                )
+            )
+            return true
+        }
+        
+        throw IllegalArgumentException("Invalid or expired verification code")
+    }
+
+    override fun resendVerificationCode(email: String) {
+        val user = userRepository.findByEmail(email) ?: throw IllegalArgumentException("User not found")
+        
+        if (user.isVerified) throw IllegalArgumentException("Account already verified")
+        
+        user.generateVerificationCode()
+        user.updatedAt = Instant.now()
+        val savedUser = userRepository.save(user)
+
+        eventPublisher.publish(
+            topic = KafkaTopics.VERIFICATION_CODE_GENERATED,
+            event = VerificationCodeGeneratedEvent(
+                userId = savedUser.id ?: throw IllegalStateException("User ID not generated"),
+                email = savedUser.email,
+                displayName = savedUser.displayName,
+                code = savedUser.verificationCode
+                    ?: user.verificationCode
+                    ?: throw IllegalStateException("Verification code not generated")
+            )
+        )
+    }
+
     private fun UserEntity.toAuthUser() = AuthUser(
-        id = id!!,
+        id = id ?: throw IllegalStateException("User ID is null"),
         email = email,
         displayName = displayName,
         studentId = studentId,
@@ -134,5 +186,4 @@ internal class AuthServiceImpl(
             throw IllegalArgumentException("User type must be STUDENT, BUYER or SELLER")
         }
     }
-
 }

@@ -2,7 +2,9 @@ package com.fanyiadrien.auth.internal.persistence
 
 import jakarta.persistence.*
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.UUID
+import kotlin.random.Random
 
 @Entity
 @Table(name = "users")
@@ -31,12 +33,33 @@ class UserEntity(
     @Column(name = "profile_image_url")
     val profileImageUrl: String? = null,
 
+    // Verification fields
+    @Column(name = "verification_code")
+    var verificationCode: String? = null,
+
+    @Column(name = "verification_code_expires_at")
+    var verificationCodeExpiresAt: Instant? = null,
+
+    @Column(name = "is_verified", nullable = false)
+    var isVerified: Boolean = false,
+
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant = Instant.now(),
 
     @Column(name = "updated_at", nullable = false)
-    val updatedAt: Instant = Instant.now()
-)
+    var updatedAt: Instant = Instant.now()
+) {
+    fun generateVerificationCode() {
+        val randomDigits = (100000..999999).random()
+        this.verificationCode = "ICTUEx-$randomDigits"
+        this.verificationCodeExpiresAt = Instant.now().plus(15, ChronoUnit.MINUTES)
+    }
+
+    fun isCodeValid(code: String): Boolean {
+        return this.verificationCode == code && 
+               this.verificationCodeExpiresAt?.isAfter(Instant.now()) == true
+    }
+}
 
 enum class UserType {
     STUDENT,

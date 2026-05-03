@@ -1,32 +1,35 @@
 package com.fanyiadrien.notification.internal
 
-import com.fanyiadrien.shared.events.UserVerifiedEvent
+import com.fanyiadrien.shared.events.VerificationCodeGeneratedEvent
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.util.UUID
 
-class WelcomeEmailConsumerTest {
+class VerificationCodeEmailConsumerTest {
 
     private val objectMapper = ObjectMapper().findAndRegisterModules()
     private val emailService: EmailService = mock()
-    private val consumer = WelcomeEmailConsumer(objectMapper, emailService)
+    private val consumer = VerificationCodeEmailConsumer(objectMapper, emailService)
 
     @Test
-    fun `handleUserVerified calls emailService with correct data`() {
-        val event = UserVerifiedEvent(
+    fun `handleVerificationCodeGenerated calls emailService with correct data`() {
+        val event = VerificationCodeGeneratedEvent(
             userId = UUID.randomUUID(),
             email = "test@ictuniversity.edu.cm",
             displayName = "Test Student",
+            code = "ICTUEx-123456"
         )
         val message = objectMapper.writeValueAsString(event)
 
-        consumer.handleUserVerified(message)
+        consumer.handleVerificationCodeGenerated(message)
 
-        verify(emailService).sendWelcomeEmail(
+        verify(emailService).sendVerificationCodeEmail(
             to = event.email,
-            displayName = event.displayName
+            displayName = event.displayName,
+            code = event.code
         )
     }
 }
+

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fanyiadrien.shared.common.GlobalExceptionHandler
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -159,6 +160,64 @@ class AuthControllerTest {
             header("Authorization", "Bearer mock.jwt.token")
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(UpdateUserTypeRequest(userType = "HACKER"))
+        }.andExpect {
+            status { isBadRequest() }
+        }
+    }
+
+    @Test
+    fun `resendToken returns 200 and calls service`() {
+        mockMvc.post("/api/auth/resend-token") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(ResendTokenRequest(email = "test@ictuniversity.edu.cm"))
+        }.andExpect {
+            status { isOk() }
+        }
+
+        verify(authService).resendVerificationCode("test@ictuniversity.edu.cm")
+    }
+
+    @Test
+    fun `resendToken returns 400 when email is missing`() {
+        mockMvc.post("/api/auth/resend-token") {
+            contentType = MediaType.APPLICATION_JSON
+            content = "{}"
+        }.andExpect {
+            status { isBadRequest() }
+        }
+    }
+
+    @Test
+    fun `verifyCode returns 200 when code is valid`() {
+        whenever(authService.verifyCode("test@ictuniversity.edu.cm", "ICTUEx-123456"))
+            .thenReturn(true)
+
+        mockMvc.post("/api/auth/verify-code") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(
+                VerifyCodeRequest(
+                    email = "test@ictuniversity.edu.cm",
+                    code = "ICTUEx-123456"
+                )
+            )
+        }.andExpect {
+            status { isOk() }
+        }
+    }
+
+    @Test
+    fun `verifyCode returns 400 when code is invalid`() {
+        whenever(authService.verifyCode(any(), any()))
+            .thenThrow(IllegalArgumentException("Invalid or expired verification code"))
+
+        mockMvc.post("/api/auth/verify-code") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(
+                VerifyCodeRequest(
+                    email = "test@ictuniversity.edu.cm",
+                    code = "BADCODE"
+                )
+            )
         }.andExpect {
             status { isBadRequest() }
         }

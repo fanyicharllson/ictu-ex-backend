@@ -16,6 +16,13 @@ class KafkaConfig {
             .build()
 
     @Bean
+    fun verificationCodeTopic(): NewTopic =
+        TopicBuilder.name(KafkaTopics.VERIFICATION_CODE_GENERATED)
+            .partitions(1)
+            .replicas(1)
+            .build()
+
+    @Bean
     fun productPostedTopic(): NewTopic =
         TopicBuilder.name(KafkaTopics.PRODUCT_POSTED)
             .partitions(1)

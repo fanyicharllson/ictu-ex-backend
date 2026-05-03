@@ -60,6 +60,22 @@ internal class EmailService(
         sendEmail(to, "New message from $senderName", baseLayout("New Message Received", content))
     }
 
+    fun sendVerificationCodeEmail(to: String, displayName: String, code: String) {
+        val content = """
+            <p style="font-size: 16px; line-height: 1.5;">Hi <strong>$displayName</strong>,</p>
+            <p style="font-size: 16px; line-height: 1.5;">Use the verification code below to verify your ICTU-Ex account:</p>
+            <div style="margin: 24px 0; text-align: center;">
+                <span style="display: inline-block; background-color: #f3f4f6; border: 1px dashed #2563eb; padding: 12px 18px; font-size: 20px; letter-spacing: 1px; font-weight: bold; color: #1f2937;">
+                    $code
+                </span>
+            </div>
+            <p style="font-size: 16px; line-height: 1.5;">This code expires in <strong>15 minutes</strong>.</p>
+            <p style="font-size: 16px; line-height: 1.5;">If you did not request this code, you can safely ignore this email.</p>
+        """.trimIndent()
+
+        sendEmail(to, "Your ICTU-Ex verification code", baseLayout("Verify Your Account", content))
+    }
+
     private fun baseLayout(title: String, body: String): String = """
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
             <div style="background-color: #2563eb; color: #ffffff; padding: 20px; text-align: center;">

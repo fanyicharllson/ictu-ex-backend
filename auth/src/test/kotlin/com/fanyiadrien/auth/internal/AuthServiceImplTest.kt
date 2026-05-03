@@ -64,6 +64,11 @@ class AuthServiceImplTest {
 
     @Test
     fun `register throws exception for non-ICTU email`() {
+        whenever(userRepository.existsByEmail(any())).thenReturn(false)
+        whenever(userRepository.existsByStudentId(any())).thenReturn(false)
+        whenever(userRepository.save(any())).thenReturn(buildUserEntity())
+        whenever(jwtService.generateToken(any(), any())).thenReturn("token")
+
         val exception = assertThrows<IllegalArgumentException> {
             authService.register(
                 email = "john@gmail.com",
@@ -258,6 +263,22 @@ class AuthServiceImplTest {
 
         assertEquals("User type must be STUDENT, BUYER or SELLER", exception.message)
         verify(userRepository, never()).save(any())
+    }
+
+    // ==================== VERIFY CODE TESTS ====================
+
+    @Test
+    fun `verifyCode succeeds and publishes verified event`() {
+        val user = buildUserEntity(email = "verified@ictuniversity.edu.cm")
+        user.generateVerificationCode()
+
+        whenever(userRepository.findByEmail(user.email)).thenReturn(user)
+        whenever(userRepository.save(any())).thenAnswer { it.arguments[0] as UserEntity }
+
+        val result = authService.verifyCode(user.email, user.verificationCode!!)
+
+        assertTrue(result)
+        verify(eventPublisher).publish(any(), any())
     }
 
     // ==================== HELPER ====================

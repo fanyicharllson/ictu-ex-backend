@@ -17,6 +17,10 @@ interface AuthService {
     fun updateUserType(token: String, userType: String): AuthUser
     
     fun getUserById(userId: UUID): AuthUser?
+
+    fun verifyCode(email: String, code: String): Boolean
+
+    fun resendVerificationCode(email: String)
 }
 
 data class AuthResult(

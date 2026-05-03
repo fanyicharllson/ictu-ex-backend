@@ -35,6 +35,7 @@ class AuthController(private val authService: AuthService) {
         }
     }
 
+    /* Method to update the user type(either to a seller or buyer)*/
     @PatchMapping("/user-type")
     fun updateUserType(
         @RequestHeader("Authorization") token: String,
@@ -44,6 +45,24 @@ class AuthController(private val authService: AuthService) {
         val updatedUser = authService.updateUserType(bearerToken, request.userType)
         return ResponseEntity.ok(updatedUser)
     }
+
+    /* Resend verification code token */
+    @PostMapping("/resend-token")
+    fun resendToken(@RequestBody request: ResendTokenRequest): ResponseEntity<MessageResponse> {
+        authService.resendVerificationCode(request.email)
+        return ResponseEntity.ok(MessageResponse(message = "Verification code resent successfully!"))
+    }
+
+    /* Verify the 6-digit code sent by email */
+    @PostMapping("/verify-code")
+    fun verifyCode(@RequestBody request: VerifyCodeRequest): ResponseEntity<MessageResponse> {
+        authService.verifyCode(request.email, request.code)
+        return ResponseEntity.ok(MessageResponse(message = "Account verified successfully!"))
+    }
+
+
+
+
 }
 
 data class RegisterRequest(
@@ -61,3 +80,17 @@ data class LoginRequest(
 data class UpdateUserTypeRequest(
     val userType: String
 )
+
+data class ResendTokenRequest(
+    val email: String
+)
+
+data class VerifyCodeRequest(
+    val email: String,
+    val code: String
+)
+
+data class MessageResponse(
+    val message: String
+)
+

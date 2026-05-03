@@ -3,14 +3,14 @@
 @contentType = application/json
 
 # After running Register or Login, copy the token value and paste it below
-@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmOWMwNzFlMi04OTc0LTQ0MDktYjllZS05ZmViMTRhMGVlODMiLCJlbWFpbCI6InN0dWRlbnQxQGljdHVuaXZlcnNpdHkuZWR1LmNtIiwiaWF0IjoxNzc3NTY5OTQyLCJleHAiOjE3Nzc2NTYzNDJ9.ywxpGjRHRyti3gFMWsxa0SR7r8kzOryZhRkuQOXl4yA
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmYWEwNjRjOC0xNWYzLTRkYjgtOTAzZC0xOWNjMDE5MzRiZmMiLCJlbWFpbCI6ImZhbnlpY2hhcmxsc29uLmZhbnlpQGljdHVuaXZlcnNpdHkuZWR1LmNtIiwiaWF0IjoxNzc3NzczNDk1LCJleHAiOjE3Nzc4NTk4OTV9.PXC-va42OU8_Fg4EDGKMANAr0OJxplXmqA0-FOni-Uw
 
 ### 1. Register a new user
 POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "student12@ictuniversity.edu.cm",
+  "email": "fanyicharllson.fanyi@ictuniversity.edu.cm",
   "password": "SecurePassword123!",
   "displayName": "Alice Johnson",
   "studentId": "ICT2024004"
@@ -21,7 +21,7 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "student2@ictuniversity.edu.cm",
+  "email": "fanyicharllson@gmail.com",
   "password": "SecurePassword456!",
   "displayName": "Bob Smith",
   "studentId": "ICT2024002"
@@ -32,7 +32,7 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "student1@ictuniversity.edu.cm",
+  "email": "fanyicharllson.fanyi@ictuniversity.edu.cm",
   "password": "SecurePassword123!"
 }
 
@@ -57,3 +57,21 @@ Content-Type: {{contentType}}
 {
   "userType": "STUDENT"
 }
+
+### 7. Resend verification code
+POST {{baseUrl}}/api/auth/resend-token
+Content-Type: {{contentType}}
+
+{
+  "email": "student12@ictuniversity.edu.cm"
+}
+
+### 8. Verify emailed code
+POST {{baseUrl}}/api/auth/verify-code
+Content-Type: {{contentType}}
+
+{
+  "email": "fanyicharllson@gmail.com",
+  "code": "ICTUEx-892383"
+}
+
