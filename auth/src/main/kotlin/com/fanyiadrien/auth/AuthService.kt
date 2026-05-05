@@ -21,6 +21,8 @@ interface AuthService {
     fun verifyCode(email: String, code: String): Boolean
 
     fun resendVerificationCode(email: String)
+
+    fun logout(token: String)
 }
 
 data class AuthResult(

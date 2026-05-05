@@ -40,6 +40,9 @@ subprojects {
         implementation("org.springframework.boot:spring-boot-starter")
         implementation("org.springframework.modulith:spring-modulith-starter-core:1.3.0")
 
+        // Redis — available to all modules
+        implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("org.springframework.modulith:spring-modulith-starter-test:1.3.0")
         

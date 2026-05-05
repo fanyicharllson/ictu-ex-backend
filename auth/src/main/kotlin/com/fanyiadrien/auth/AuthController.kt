@@ -60,8 +60,12 @@ class AuthController(private val authService: AuthService) {
         return ResponseEntity.ok(MessageResponse(message = "Account verified successfully!"))
     }
 
-
-
+    @PostMapping("/logout")
+    fun logout(@RequestHeader("Authorization") token: String): ResponseEntity<Map<String, String>> {
+        val bearerToken = token.removePrefix("Bearer ")
+        authService.logout(bearerToken)
+        return ResponseEntity.ok(mapOf("message" to "Logged out successfully"))
+    }
 
 }
 

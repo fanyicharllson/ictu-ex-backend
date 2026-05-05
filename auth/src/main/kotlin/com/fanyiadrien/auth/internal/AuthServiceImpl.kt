@@ -10,6 +10,7 @@ import com.fanyiadrien.shared.events.VerificationCodeGeneratedEvent
 import com.fanyiadrien.shared.events.UserVerifiedEvent
 import com.fanyiadrien.shared.kafka.EventPublisher
 import com.fanyiadrien.shared.kafka.KafkaTopics
+import com.fanyiadrien.shared.redis.TokenBlacklistService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -20,7 +21,8 @@ internal class AuthServiceImpl(
     private val userRepository: UserRepository,
     private val jwtService: JwtService,
     private val passwordEncoder: PasswordEncoder,
-    private val eventPublisher: EventPublisher
+    private val eventPublisher: EventPublisher,
+    private val tokenBlacklistService: TokenBlacklistService
 ) : AuthService {
 
     override fun register(
@@ -165,6 +167,15 @@ internal class AuthServiceImpl(
                     ?: throw IllegalStateException("Verification code not generated")
             )
         )
+    }
+
+    override fun logout(token: String) {
+        // Blacklist token in Redis until it naturally expires
+        val remainingExpiry = jwtService.getRemainingExpiry(token)
+        if (remainingExpiry > 0) {
+            val jti = jwtService.extractJti(token) ?: return
+            tokenBlacklistService.blacklist(jti, remainingExpiry)
+        }
     }
 
     private fun UserEntity.toAuthUser() = AuthUser(

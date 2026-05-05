@@ -8,7 +8,7 @@ import java.util.Date
 import java.util.UUID
 
 @Service
-internal class JwtService(
+class JwtService(
     @Value("\${jwt.secret}") private val secret: String,
     @Value("\${jwt.expiration}") private val expiration: Long
 ) {
@@ -19,6 +19,7 @@ internal class JwtService(
 
     fun generateToken(userId: UUID, email: String): String {
         return Jwts.builder()
+            .setId(UUID.randomUUID().toString())
             .subject(userId.toString())
             .claim("email", email)
             .issuedAt(Date())
@@ -37,12 +38,37 @@ internal class JwtService(
         return UUID.fromString(subject)
     }
 
+    fun extractJti(token: String): String? {
+        return try {
+            val claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
+            claims.id
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     fun isTokenValid(token: String): Boolean {
         return try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token)
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
+        }
+    }
+
+    fun getRemainingExpiry(token: String): Long {
+        return try {
+            val key = Keys.hmacShaKeyFor(secret.toByteArray())
+            val claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+            val expiry = claims.expiration.time
+            val remaining = (expiry - System.currentTimeMillis()) / 1000
+            if (remaining > 0) remaining else 0
+        } catch (_: Exception) {
+            0
         }
     }
 }
