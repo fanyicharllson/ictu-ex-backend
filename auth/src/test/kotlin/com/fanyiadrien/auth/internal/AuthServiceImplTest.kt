@@ -4,12 +4,14 @@ import com.fanyiadrien.auth.internal.persistence.UserEntity
 import com.fanyiadrien.auth.internal.persistence.UserRepository
 import com.fanyiadrien.auth.internal.persistence.UserType
 import com.fanyiadrien.shared.kafka.EventPublisher
+import com.fanyiadrien.shared.redis.TokenBlacklistService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import java.util.Optional
 import java.util.UUID
 
 class AuthServiceImplTest {
@@ -21,6 +23,8 @@ class AuthServiceImplTest {
     private val userRepository: UserRepository = mock()
     private val jwtService: JwtService = mock()
     private val eventPublisher: EventPublisher = mock()
+    private val tokenBlacklistService: TokenBlacklistService = mock()
+
 
     private lateinit var authService: AuthServiceImpl
 
@@ -30,7 +34,8 @@ class AuthServiceImplTest {
             userRepository = userRepository,
             jwtService = jwtService,
             passwordEncoder = passwordEncoder,
-            eventPublisher = eventPublisher
+            eventPublisher = eventPublisher,
+            tokenBlacklistService = tokenBlacklistService
         )
     }
 
@@ -191,7 +196,7 @@ class AuthServiceImplTest {
         whenever(jwtService.isTokenValid("valid.token")).thenReturn(true)
         whenever(jwtService.extractUserId("valid.token")).thenReturn(userId)
         whenever(userRepository.findById(userId))
-            .thenReturn(java.util.Optional.of(user))
+            .thenReturn(Optional.of(user))
 
         val result = authService.validateToken("valid.token")
 
@@ -228,7 +233,7 @@ class AuthServiceImplTest {
 
         whenever(jwtService.isTokenValid("valid.token")).thenReturn(true)
         whenever(jwtService.extractUserId("valid.token")).thenReturn(userId)
-        whenever(userRepository.findById(userId)).thenReturn(java.util.Optional.of(existingUser))
+        whenever(userRepository.findById(userId)).thenReturn(Optional.of(existingUser))
         whenever(userRepository.save(any())).thenReturn(updatedUser)
 
         val result = authService.updateUserType("valid.token", "buyer")
@@ -255,7 +260,7 @@ class AuthServiceImplTest {
 
         whenever(jwtService.isTokenValid("valid.token")).thenReturn(true)
         whenever(jwtService.extractUserId("valid.token")).thenReturn(userId)
-        whenever(userRepository.findById(userId)).thenReturn(java.util.Optional.of(existingUser))
+        whenever(userRepository.findById(userId)).thenReturn(Optional.of(existingUser))
 
         val exception = assertThrows<IllegalArgumentException> {
             authService.updateUserType("valid.token", "ADMIN")
