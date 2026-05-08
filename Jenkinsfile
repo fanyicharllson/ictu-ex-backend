@@ -61,7 +61,7 @@ pipeline {
         }
         stage('Deploy to Kubernetes') {
             steps {
-                echo '🚀 Deploying to k3s...'
+                echo '🚀 Deploying to k8s...'
                 sh 'kubectl apply -f k8s/'
                 sh """
                     kubectl set image deployment/ictu-ex-app \

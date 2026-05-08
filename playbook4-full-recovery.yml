@@ -1,0 +1,198 @@
+---
+- name: ICTU-Ex Full VPS Recovery
+  hosts: localhost
+  connection: local
+  become: true
+
+  vars:
+    project_repo: "https://github.com/fanyicharllson/ictu-ex-backend.git"
+    project_dir: "/root/ictu-ex-backend"
+    namespace: "ictu-ex"
+
+  tasks:
+
+    # ── PHASE 1: SYSTEM SETUP ──────────────────────────────
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install core dependencies
+      apt:
+        name:
+          - openjdk-21-jdk
+          - docker.io
+          - git
+          - curl
+          - ansible
+          - ufw
+        state: present
+
+    - name: Start and enable Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    # ── PHASE 2: SWAP ──────────────────────────────────────
+    - name: Create swap file
+      command: fallocate -l 2G /swapfile
+      args:
+        creates: /swapfile
+
+    - name: Set swap permissions
+      file:
+        path: /swapfile
+        mode: '0600'
+
+    - name: Initialize swap
+      command: mkswap /swapfile
+      when: ansible_swaptotal_mb == 0
+
+    - name: Enable swap
+      command: swapon /swapfile
+      when: ansible_swaptotal_mb == 0
+
+    - name: Persist swap
+      lineinfile:
+        path: /etc/fstab
+        line: '/swapfile none swap sw 0 0'
+        state: present
+
+    # ── PHASE 3: FIREWALL ──────────────────────────────────
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        port: '22'
+
+    - name: Allow Jenkins
+      ufw:
+        rule: allow
+        port: '8080'
+
+    - name: Allow App via Nginx
+      ufw:
+        rule: allow
+        port: '30080'
+
+    - name: Allow Prometheus
+      ufw:
+        rule: allow
+        port: '30090'
+
+    - name: Allow Grafana
+      ufw:
+        rule: allow
+        port: '30030'
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+
+    # ── PHASE 4: KUBERNETES (k3s) ──────────────────────────
+    - name: Install k3s
+      shell: curl -sfL https://get.k3s.io | sh -
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Wait for k3s
+      wait_for:
+        path: /etc/rancher/k3s/k3s.yaml
+        timeout: 60
+
+    # ── PHASE 5: JENKINS ───────────────────────────────────
+    - name: Create Jenkins home
+      file:
+        path: /root/jenkins_home
+        state: directory
+        mode: '0777'
+
+    - name: Run Jenkins container
+      shell: |
+        docker run -d \
+          --name jenkins \
+          --restart=always \
+          -p 8080:8080 \
+          -p 50000:50000 \
+          -v /root/jenkins_home:/var/jenkins_home \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v /usr/bin/docker:/usr/bin/docker \
+          jenkins/jenkins:lts-jdk21
+      args:
+        creates: /root/jenkins_home/config.xml
+
+    - name: Fix Docker socket permissions for Jenkins
+      file:
+        path: /var/run/docker.sock
+        mode: '0666'
+
+    - name: Setup kubectl for Jenkins
+      shell: |
+        docker exec -u root jenkins mkdir -p /var/jenkins_home/.kube
+        docker cp /etc/rancher/k3s/k3s.yaml jenkins:/var/jenkins_home/.kube/config
+        docker exec -u root jenkins sed -i 's/127.0.0.1/167.172.99.14/g' /var/jenkins_home/.kube/config
+        docker exec -u root jenkins chown jenkins:jenkins /var/jenkins_home/.kube/config
+      ignore_errors: yes
+
+    - name: Install kubectl in Jenkins
+      shell: |
+        docker exec -u root jenkins bash -c \
+          "curl -LO https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl && \
+           chmod +x kubectl && mv kubectl /usr/local/bin/"
+      ignore_errors: yes
+
+    # ── PHASE 6: CLONE PROJECT ─────────────────────────────
+    - name: Clone ICTU-Ex repository
+      git:
+        repo: "{{ project_repo }}"
+        dest: "{{ project_dir }}"
+        force: yes
+
+    # ── PHASE 7: KUBERNETES RESOURCES ─────────────────────
+    - name: Create namespace
+      shell: k3s kubectl apply -f {{ project_dir }}/k8s/namespace.yaml
+
+    - name: Create secrets
+      shell: |
+        k3s kubectl create secret generic ictu-ex-secrets \
+          --from-literal=JWT_SECRET='YOUR_JWT_SECRET' \
+          --from-literal=JWT_EXPIRES='YOUR_JWT_EXPIRES' \
+          --from-literal=RESEND_API_KEY='YOUR_RESEND_KEY' \
+          --from-literal=DB_URL='YOUR_DB_URL' \
+          --from-literal=DB_USERNAME='YOUR_DB_USERNAME' \
+          --from-literal=DB_PASSWORD='YOUR_DB_PASSWORD' \
+          -n ictu-ex
+      ignore_errors: yes
+
+    - name: Deploy all Kubernetes resources
+      shell: k3s kubectl apply -f {{ project_dir }}/k8s/
+
+    # ── PHASE 8: VERIFY ────────────────────────────────────
+    - name: Wait for pods
+      shell: sleep 60
+
+    - name: Get pod status
+      shell: k3s kubectl get pods -n ictu-ex
+      register: pods
+
+    - name: Print pod status
+      debug:
+        msg: "{{ pods.stdout }}"
+
+    - name: Get Jenkins password
+      shell: docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+      register: jenkins_pass
+      ignore_errors: yes
+
+    - name: "RECOVERY COMPLETE"
+      debug:
+        msg:
+          - "================================================="
+          - "     ICTU-EX VPS RECOVERY COMPLETE ✅           "
+          - "================================================="
+          - "Jenkins:    http://167.172.99.14:8080"
+          - "App:        http://167.172.99.14:30080"
+          - "Prometheus: http://167.172.99.14:30090"
+          - "Grafana:    http://167.172.99.14:30030"
+          - "Jenkins password: {{ jenkins_pass.stdout }}"
+          - "================================================="

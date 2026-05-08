@@ -75,3 +75,7 @@ Content-Type: {{contentType}}
   "code": "ICTUEx-892383"
 }
 
+### 9. logout user
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
