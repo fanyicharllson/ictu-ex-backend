@@ -265,36 +265,6 @@ Jenkins pipeline (Jenkinsfile) runs on every push to `main`:
 | `GET` | `/api/listings/{id}` | No | Get listing details |
 | `PUT` | `/api/listings/{id}` | Yes (owner) | Update a listing |
 | `DELETE` | `/api/listings/{id}` | Yes (owner) | Remove a listing |
-
----
-
-## Build Status
-
-| Task | Status |
-|---|---|
-| DigitalOcean droplet provisioned (2vCPU, 1.9GB + 2GB swap) | ✅ Done |
-| Swap space configured | ✅ Done |
-| Ansible installed + 3 playbooks | ✅ Done |
-| Docker + k3s + Java 21 installed on server | ✅ Done |
-| Jenkins running as Docker container (port 8080) | ✅ Done |
-| k3s cluster running | ✅ Done |
-| Postgres + Kafka + Prometheus + Grafana pods | ✅ Done |
-| Spring Boot modular monolith created | ✅ Done |
-| All submodules configured | ✅ Done |
-| ModularityTests passing | ✅ Done |
-| Jenkinsfile + Dockerfile + k8s YAMLs committed | ✅ Done |
-| Auth module — UserEntity + UserRepository + Flyway migration | ✅ Done |
-| Fix gradlew permission in Jenkinsfile → Jenkins build | ⬜ Todo |
-| Jenkins deploys app → verify `users` table on VPS | ⬜ Todo |
-| JWT implementation (auth module) | ⬜ Todo |
-| Listing module CRUD | ⬜ Todo |
-| Kafka event publishing | ⬜ Todo |
-| Messaging module | ⬜ Todo |
-| Notification module (Kafka consumer) | ⬜ Todo |
-| Sync module (offline Android) | ⬜ Todo |
-
----
-
 ## Team
 
 - **Team Lead / Architect:** Fanyi Charllson
