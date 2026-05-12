@@ -1,5 +1,6 @@
 package com.fanyiadrien.auth
 
+import io.swagger.v3.oas.annotations.media.Schema
 import java.util.UUID
 
 interface AuthService {
@@ -26,7 +27,10 @@ interface AuthService {
 }
 
 data class AuthResult(
+    @field:Schema(description = "JWT access token")
     val token: String,
+    @field:Schema(description = "Authenticated user profile")
     val user: AuthUser,
+    @field:Schema(description = "Authentication result message")
     val message: String
 )

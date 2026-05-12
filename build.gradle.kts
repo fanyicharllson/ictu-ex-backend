@@ -39,6 +39,7 @@ subprojects {
         implementation("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.springframework.boot:spring-boot-starter")
         implementation("org.springframework.modulith:spring-modulith-starter-core:1.3.0")
+        compileOnly("io.swagger.core.v3:swagger-annotations-jakarta:2.2.31")
 
         // Redis — available to all modules
         implementation("org.springframework.boot:spring-boot-starter-data-redis")

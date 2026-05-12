@@ -39,6 +39,7 @@ class SecurityConfig {
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers("/api/auth/**").permitAll() // Permit auth endpoints
                 auth.requestMatchers("/actuator/**").permitAll() // Permit actuator endpoints
+                auth.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
                 auth.anyRequest().authenticated() // All other requests require authentication
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

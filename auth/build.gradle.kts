@@ -8,7 +8,8 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.flywaydb:flyway-core")
-    
+    implementation("io.swagger.core.v3:swagger-annotations-jakarta:2.2.31")
+
     // Jackson Kotlin module for DTO deserialization
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 

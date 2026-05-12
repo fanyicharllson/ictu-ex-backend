@@ -19,7 +19,11 @@ class JwtAuthenticationFilter(
     private val publicPaths = listOf(
         "/api/auth/register",
         "/api/auth/login",
-        "/actuator"
+        "/actuator",
+        "/swagger-ui",
+        "/swagger-ui.html",
+        "/api-docs",
+        "/v3/api-docs"
     )
 
     override fun doFilterInternal(

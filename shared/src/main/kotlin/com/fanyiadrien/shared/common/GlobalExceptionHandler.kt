@@ -1,5 +1,6 @@
 package com.fanyiadrien.shared.common
 
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException // Import this
@@ -49,9 +50,13 @@ class GlobalExceptionHandler {
  * Standard error response structure for mobile clients.
  */
 data class ErrorResponse(
+    @field:Schema(description = "Human-readable error message")
     val message: String,
+    @field:Schema(description = "HTTP status code")
     val status: Int,
+    @field:Schema(description = "HTTP status reason")
     val error: String,
+    @field:Schema(description = "Error timestamp in ISO-8601 format")
     val timestamp: String
 )
 
