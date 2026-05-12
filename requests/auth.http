@@ -10,7 +10,7 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "fanyicharllson.fanyi@ictuniversity.edu.cm",
+  "email": "adriennathan.tellokombou@ictuniversity.edu.cm",
   "password": "SecurePassword123!",
   "displayName": "Alice Johnson",
   "studentId": "ICT2024004"

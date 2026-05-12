@@ -66,7 +66,7 @@ kover {
                     // Exclude modules with no tests yet
                     "com.fanyiadrien.notification.*",
                     "com.fanyiadrien.messaging.*",
-                    "com.fanyiadrien.listing.*",
+                    // listing module now has tests — removed from exclusions,
                     "com.fanyiadrien.shared.*"
                 )
             }
