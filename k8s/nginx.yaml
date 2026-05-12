@@ -35,10 +35,55 @@ data:
   default.conf: |
     server {
         listen 80;
+
+        # App API
         location / {
             proxy_pass http://ictu-ex-app:8080;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_connect_timeout 60s;
+            proxy_read_timeout 60s;
+        }
+
+        # Swagger UI
+        location /swagger-ui.html {
+            proxy_pass http://ictu-ex-app:8080/swagger-ui.html;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_connect_timeout 60s;
+            proxy_read_timeout 60s;
+        }
+
+        # Swagger UI webjars (JS, CSS, etc.)
+        location /swagger-ui/ {
+            proxy_pass http://ictu-ex-app:8080/swagger-ui/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_connect_timeout 60s;
+            proxy_read_timeout 60s;
+        }
+
+        # OpenAPI JSON definition
+        location /v3/api-docs {
+            proxy_pass http://ictu-ex-app:8080/v3/api-docs;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_connect_timeout 60s;
+            proxy_read_timeout 60s;
+        }
+
+        # OpenAPI JSON definition (YAML format)
+        location /v3/api-docs.yaml {
+            proxy_pass http://ictu-ex-app:8080/v3/api-docs.yaml;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_connect_timeout 60s;
+            proxy_read_timeout 60s;
         }
     }
 ---
