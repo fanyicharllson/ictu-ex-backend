@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ictu-ex-ingress
+  namespace: ictu-ex
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+    - hosts:
+        - api.ictuex.teamnest.me
+      secretName: ictu-ex-tls
+  rules:
+    - host: api.ictuex.teamnest.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ictu-ex-app
+                port:
+                  number: 8080
