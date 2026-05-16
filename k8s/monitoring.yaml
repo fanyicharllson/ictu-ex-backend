@@ -79,7 +79,7 @@ spec:
             - name: GF_SMTP_ENABLED
               value: "true"
             - name: GF_SMTP_HOST
-              value: "smtp.gmail.com:587"
+              value: "smtp.gmail.com:465"
             - name: GF_SMTP_USER
               value: "fanyicharllson1@gmail.com"
             - name: GF_SMTP_PASSWORD
@@ -94,7 +94,7 @@ spec:
             - name: GF_SMTP_SKIP_VERIFY
               value: "true"
             - name: GF_SMTP_STARTTLS_POLICY
-              value: "MandatoryStartTLS"
+              value: "NoStartTLS"
 ---
 apiVersion: v1
 kind: Service
