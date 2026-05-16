@@ -1,5 +1,5 @@
 ### Variables
-@baseUrl = http://localhost:8081
+@baseUrl = http://localhost:8080
 @contentType = application/json
 
 # After running Register or Login, copy the token value and paste it below

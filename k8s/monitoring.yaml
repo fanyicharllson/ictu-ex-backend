@@ -75,6 +75,26 @@ spec:
           image: grafana/grafana:latest
           ports:
             - containerPort: 3000
+          env:
+            - name: GF_SMTP_ENABLED
+              value: "true"
+            - name: GF_SMTP_HOST
+              value: "smtp.gmail.com:587"
+            - name: GF_SMTP_USER
+              value: "fanyicharllson1@gmail.com"
+            - name: GF_SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ictu-ex-secrets
+                  key: GRAFANA_SMTP_PASSWORD
+            - name: GF_SMTP_FROM_ADDRESS
+              value: "fanyicharllson1@gmail.com"
+            - name: GF_SMTP_FROM_NAME
+              value: "ICTU-Ex Grafana Alerts"
+            - name: GF_SMTP_SKIP_VERIFY
+              value: "true"
+            - name: GF_SMTP_STARTTLS_POLICY
+              value: "MandatoryStartTLS"
 ---
 apiVersion: v1
 kind: Service

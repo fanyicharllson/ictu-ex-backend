@@ -6,3 +6,4 @@ include("listing")
 include("notification")
 include("shared")         // For shared Kafka event classes
 include("messaging")       // For Kafka configuration and utilities
+include("sync")
