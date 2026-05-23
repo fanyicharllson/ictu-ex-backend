@@ -1,0 +1,46 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// app/build.gradle.kts — relevant additions only
+// ─────────────────────────────────────────────────────────────────────────────
+
+// 1. Read the flag from local.properties (so each dev can choose locally)
+//    In local.properties add:  useSpringBackend=true
+import java.util.Properties
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) load(f.inputStream())
+}
+val useSpringBackend = localProps.getProperty("useSpringBackend", "false").toBoolean()
+
+android {
+
+    // 2. Expose the flag to Kotlin code via BuildConfig
+    defaultConfig {
+        buildConfigField("boolean", "USE_SPRING_BACKEND", "$useSpringBackend")
+    }
+
+    buildFeatures {
+        buildConfig = true   // make sure BuildConfig generation is on
+    }
+}
+
+dependencies {
+
+    // ── Retrofit + Moshi (for Spring Boot calls) ──────────────────────────────
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+    // Moshi code-gen (optional but faster than reflection)
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
+
+    // ── Coroutines (already likely present) ───────────────────────────────────
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    // ── Firebase (already present — keep as-is) ───────────────────────────────
+    // implementation(platform("com.google.firebase:firebase-bom:33.x.x"))
+    // implementation("com.google.firebase:firebase-auth-ktx")
+    // implementation("com.google.firebase:firebase-firestore-ktx")
+
+    // ── Hilt (already present — keep as-is) ───────────────────────────────────
+    // implementation("com.google.dagger:hilt-android:2.51.1")
+    // kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+}

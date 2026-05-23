@@ -21,7 +21,7 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "fanyicharllson@gmail.com",
+  "email": "adrientello5@gmail.com",
   "password": "SecurePassword456!",
   "displayName": "Bob Smith",
   "studentId": "ICT2024002"
