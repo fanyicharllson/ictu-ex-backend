@@ -5,6 +5,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("io.swagger.core.v3:swagger-annotations-jakarta:2.2.31")
+    implementation("com.cloudinary:cloudinary-http44:1.38.0") // Cloudinary SDK
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
@@ -17,4 +18,3 @@ repositories {
 tasks.test {
     useJUnitPlatform()
 }
-

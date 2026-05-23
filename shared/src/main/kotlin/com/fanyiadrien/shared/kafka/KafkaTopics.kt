@@ -6,4 +6,5 @@ object KafkaTopics {
     const val PRODUCT_POSTED = "product.posted"
     const val MESSAGE_SENT = "message.sent"
     const val VERIFICATION_CODE_GENERATED = "user.verification-code.generated"
+    const val IMAGE_UPLOAD_REQUESTED = "image.upload.requested"
 }

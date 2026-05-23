@@ -7,7 +7,15 @@
 
 ## Project Overview
 
-ICTU-Ex is a peer-to-peer student marketplace enabling students at ICT University Cameroon to buy and sell items within the campus community. The backend is a Kotlin + Spring Boot 3.4.4 modular monolith using Spring Modulith to enforce clean module boundaries, with an event-driven architecture powered by Apache Kafka.
+ICTU-Ex is a peer-to-peer student marketplace enabling students at ICT University Cameroon to buy and sell items within the campus community. The backend is a Kotlin + Spring Boot 3.4.4 **service-oriented architecture with event-driven messaging**, using Spring Modulith to enforce clean module boundaries.
+
+**Architecture Classification:**
+- **Service-Oriented (SOA)** — Multiple logical service components (auth, listing, messaging, notification, sync)
+- **Event-Driven** — Asynchronous inter-service communication via Apache Kafka
+- **Shared-Database Pattern** — All services query/update a single PostgreSQL instance (not true microservices)
+- **Modular Monolith** — Deployable as a single application with separate module boundaries
+
+For detailed Kafka topic mappings and service communication flows, see [`KAFKA-TOPICS-AND-SERVICES.md`](./KAFKA-TOPICS-AND-SERVICES.md).
 
 This backend is one part of a two-course project:
 
