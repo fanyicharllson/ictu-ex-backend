@@ -53,15 +53,16 @@ pipeline {
                         variable: 'SONAR_TOKEN'
                 )]) {
                     sh '''
-                        ./gradlew sonar \
-                          -Dsonar.token=$SONAR_TOKEN \
-                          -Dsonar.projectKey=fanyicharllson_ictu-ex-backend \
-                          -Dsonar.organization=fanyicharllson \
-                          -Dsonar.host.url=https://sonarcloud.io
-                    '''
+                ./gradlew sonar \
+                  -Dsonar.token=$SONAR_TOKEN \
+                  -Dsonar.projectKey=ictu-ex-backend \
+                  -Dsonar.organization=fanyicharllson \
+                  -Dsonar.host.url=https://sonarcloud.io
+            '''
                 }
             }
         }
+
         stage('Docker Build & Push') {
             steps {
                 echo '🐳 Building Docker image...'

@@ -88,7 +88,7 @@ kover {
 }
 sonarqube {
     properties {
-        property("sonar.projectKey", "fanyicharllson_ictu-ex-backend")
+        property("sonar.projectKey", "ictu-ex-backend")
         property("sonar.organization", "fanyicharllson")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.projectName", "ICTU-Ex Smart Student Marketplace")
