@@ -53,7 +53,7 @@ pipeline {
                         variable: 'SONAR_TOKEN'
                 )]) {
                     sh '''
-                ./gradlew koverXmlReport sonar \
+                ./gradlew clean koverXmlReport sonar \
                   -Dsonar.token=$SONAR_TOKEN \
                   -Dsonar.projectKey=ictu-ex-backend \
                   -Dsonar.organization=fanyicharllson \
@@ -62,7 +62,6 @@ pipeline {
                 }
             }
         }
-
         stage('Docker Build & Push') {
             steps {
                 echo '🐳 Building Docker image...'
