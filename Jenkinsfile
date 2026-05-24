@@ -53,7 +53,7 @@ pipeline {
                         variable: 'SONAR_TOKEN'
                 )]) {
                     sh '''
-                ./gradlew sonar \
+                ./gradlew koverXmlReport sonar \
                   -Dsonar.token=$SONAR_TOKEN \
                   -Dsonar.projectKey=ictu-ex-backend \
                   -Dsonar.organization=fanyicharllson \

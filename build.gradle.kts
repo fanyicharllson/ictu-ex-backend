@@ -94,16 +94,18 @@ sonarqube {
         property("sonar.projectName", "ICTU-Ex Smart Student Marketplace")
         property("sonar.projectVersion", "1.0.0")
         property("sonar.sourceEncoding", "UTF-8")
-        property("sonar.sources", "src/main/kotlin")
-        property("sonar.tests", "src/test/kotlin")
-        property("sonar.coverage.jacoco.xmlReportPaths",
-            "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml")
-        property("sonar.exclusions",
-            "**/generated/**,**/build/**,**/*Application.kt")
-        property("sonar.cpd.exclusions",
-            "**/dto/**,**/model/**")
+
+        // REMOVE the hardcoded src/main/kotlin root paths!
+        // Let the Gradle plugin detect subproject source trees automatically.
+
+        // Fix the path using wildcards to match reports inside submodules
+        property("sonar.coverage.jacoco.xmlReportPaths", "**/build/reports/kover/report.xml")
+
+        property("sonar.exclusions", "**/generated/**,**/build/**,**/*Application.kt")
+        property("sonar.cpd.exclusions", "**/dto/**,**/model/**")
     }
 }
+
 
 dependencies {
     implementation(kotlin("stdlib"))
