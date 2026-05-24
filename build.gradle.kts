@@ -125,3 +125,6 @@ sonarqube {
 dependencies {
     implementation(kotlin("stdlib"))
 }
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    archiveFileName.set("ictu-ex-app-0.0.1-SNAPSHOT.jar")
+}

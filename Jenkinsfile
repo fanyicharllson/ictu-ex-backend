@@ -52,8 +52,9 @@ pipeline {
                         credentialsId: 'sonar-token',
                         variable: 'SONAR_TOKEN'
                 )]) {
+                    // Added bootJar at the end to re-generate the artifacts after the clean phase
                     sh '''
-                ./gradlew clean koverXmlReport sonar \
+                ./gradlew clean koverXmlReport sonar :ictu-ex-app:bootJar \
                   -Dsonar.token=$SONAR_TOKEN \
                   -Dsonar.projectKey=ictu-ex-backend \
                   -Dsonar.organization=fanyicharllson \
