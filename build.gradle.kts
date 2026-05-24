@@ -3,9 +3,9 @@ plugins {
     kotlin("plugin.spring") version "2.0.21"
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.jetbrains.kotlinx.kover") version "0.8.3"
+    id("org.jetbrains.kotlinx.kover") version "0.9.1"
     kotlin("plugin.jpa") version "2.0.21"
-    id("org.sonarqube") version "4.4.1.3373"
+    id("org.sonarqube") version "7.3.0.8198"
 }
 
 val springBootVersion = "3.4.4"
@@ -102,7 +102,6 @@ sonarqube {
             "**/generated/**,**/build/**,**/*Application.kt")
         property("sonar.cpd.exclusions",
             "**/dto/**,**/model/**")
-        property("sonar.gradle.skipCompile", "true")
     }
 }
 

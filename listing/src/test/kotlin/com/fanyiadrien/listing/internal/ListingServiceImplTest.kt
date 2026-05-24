@@ -24,6 +24,7 @@ class ListingServiceImplTest {
     private val listingRepository: ListingRepository = mock()
     private val eventPublisher: EventPublisher = mock()
     private val cacheService: CacheService = mock()
+    private val geminiService: GeminiService = mock() // Mock GeminiService
     private val objectMapper = jacksonObjectMapper()
         .registerModule(JavaTimeModule())
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -32,7 +33,8 @@ class ListingServiceImplTest {
 
     @BeforeEach
     fun setup() {
-        listingService = ListingServiceImpl(listingRepository, eventPublisher, cacheService, objectMapper)
+        // Pass geminiService to the constructor
+        listingService = ListingServiceImpl(listingRepository, eventPublisher, cacheService, objectMapper, geminiService)
         // Default: cache always misses
         whenever(cacheService.get(any())).thenReturn(null)
     }

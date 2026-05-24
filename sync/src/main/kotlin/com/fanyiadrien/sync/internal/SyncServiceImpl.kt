@@ -1,6 +1,7 @@
 package com.fanyiadrien.sync.internal
 
 import com.fanyiadrien.sync.*
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -21,7 +22,8 @@ internal class SyncServiceImpl(
 
         records.forEach { record ->
             val payloadMap = record.payload?.let {
-                objectMapper.readValue(it, Map::class.java) as Map<String, Any>
+                // Use TypeReference for type-safe deserialization to avoid unchecked cast warning
+                objectMapper.readValue(it, object : TypeReference<Map<String, Any>>() {})
             } ?: emptyMap()
 
             when (record.entityType) {

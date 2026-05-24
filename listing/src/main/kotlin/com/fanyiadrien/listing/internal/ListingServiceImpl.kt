@@ -1,5 +1,6 @@
 package com.fanyiadrien.listing.internal
 
+import com.fanyiadrien.listing.AIListingSuggestion
 import com.fanyiadrien.listing.CreateListingRequest
 import com.fanyiadrien.listing.Listing
 import com.fanyiadrien.listing.ListingService
@@ -20,7 +21,8 @@ internal class ListingServiceImpl(
     private val listingRepository: ListingRepository,
     private val eventPublisher: EventPublisher,
     private val cacheService: CacheService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val geminiService: GeminiService // Inject GeminiService
 ) : ListingService {
 
     // 5 MB limit for image uploads
@@ -160,6 +162,11 @@ internal class ListingServiceImpl(
 
         cacheService.set(cacheKey, objectMapper.writeValueAsString(results))
         return results
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    override suspend fun analyzeImage(base64Image: String, mimeType: String): AIListingSuggestion {
+        return geminiService.analyzeImage(base64Image, mimeType)
     }
 
     private fun findOrThrow(id: UUID): ListingEntity =

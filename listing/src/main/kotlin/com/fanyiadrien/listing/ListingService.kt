@@ -10,6 +10,7 @@ interface ListingService {
     fun updateListing(id: UUID, request: UpdateListingRequest, sellerId: UUID): Listing
     fun deleteListing(id: UUID, sellerId: UUID)
     fun searchListings(title: String?, category: String?): List<Listing>
+    suspend fun analyzeImage(base64Image: String, mimeType: String): AIListingSuggestion
 }
 
 data class CreateListingRequest(

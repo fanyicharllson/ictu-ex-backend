@@ -4,9 +4,12 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
+import java.util.Base64
 import java.util.UUID
 
 @RestController
@@ -59,6 +62,23 @@ class ListingController(private val listingService: ListingService) {
         @RequestParam(required = false) category: String?
     ): ResponseEntity<List<Listing>> =
         ResponseEntity.ok(listingService.searchListings(title, category))
+
+    @PostMapping("/analyze-image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @Operation(summary = "AI-powered listing analyzer",
+        description = "Upload item image, get AI-generated listing details (title, description, price, category, condition).")
+    @SecurityRequirement(name = "bearerAuth")
+    suspend fun analyzeImage(
+        @RequestParam("image") image: MultipartFile
+    ): ResponseEntity<AIListingSuggestion> {
+        if (image.isEmpty) {
+            throw IllegalArgumentException("Image file cannot be empty.")
+        }
+        val base64Image = Base64.getEncoder().encodeToString(image.bytes)
+        val mimeType = image.contentType ?: "application/octet-stream" // Default if not provided
+
+        val suggestion = listingService.analyzeImage("data:$mimeType;base64,$base64Image", mimeType)
+        return ResponseEntity.ok(suggestion)
+    }
 
     private fun currentUserId(): UUID =
         SecurityContextHolder.getContext().authentication?.principal as? UUID
