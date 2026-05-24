@@ -45,7 +45,23 @@ pipeline {
                 }
             }
         }
-
+        stage('SonarCloud Analysis') {
+            steps {
+                echo '🔍 Running SonarCloud code analysis...'
+                withCredentials([string(
+                        credentialsId: 'sonar-token',
+                        variable: 'SONAR_TOKEN'
+                )]) {
+                    sh '''
+                        ./gradlew sonar \
+                          -Dsonar.token=$SONAR_TOKEN \
+                          -Dsonar.projectKey=fanyicharllson_ictu-ex-backend \
+                          -Dsonar.organization=fanyicharllson \
+                          -Dsonar.host.url=https://sonarcloud.io
+                    '''
+                }
+            }
+        }
         stage('Docker Build & Push') {
             steps {
                 echo '🐳 Building Docker image...'

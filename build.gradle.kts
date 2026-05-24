@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.8.3"
     kotlin("plugin.jpa") version "2.0.21"
+    id("org.sonarqube") version "5.0.0.4638"
 }
 
 val springBootVersion = "3.4.4"
@@ -64,11 +65,11 @@ kover {
                     "*.dto.*",
                     "*.config.*",
                     "*.IctuExBackendApplicationKt",
-                    // Exclude modules with no tests yet
                     "com.fanyiadrien.notification.*",
                     "com.fanyiadrien.messaging.*",
-                    // listing module now has tests — removed from exclusions,
-                    "com.fanyiadrien.shared.*"
+                    "com.fanyiadrien.listing.*",
+                    "com.fanyiadrien.shared.*",
+                    "com.fanyiadrien.sync.*"
                 )
             }
         }
@@ -77,8 +78,33 @@ kover {
                 minBound(90)
             }
         }
+        total {
+            xml {
+                onCheck = true
+                xmlFile = file("${rootProject.buildDir}/reports/kover/report.xml")
+            }
+        }
     }
 }
+sonarqube {
+    properties {
+        property("sonar.projectKey", "fanyicharllson_ictu-ex-backend")
+        property("sonar.organization", "fanyicharllson")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.projectName", "ICTU-Ex Smart Student Marketplace")
+        property("sonar.projectVersion", "1.0.0")
+        property("sonar.sourceEncoding", "UTF-8")
+        property("sonar.sources", "src/main/kotlin")
+        property("sonar.tests", "src/test/kotlin")
+        property("sonar.coverage.jacoco.xmlReportPaths",
+            "${rootProject.buildDir}/reports/kover/report.xml")
+        property("sonar.exclusions",
+            "**/generated/**,**/build/**,**/*Application.kt")
+        property("sonar.cpd.exclusions",
+            "**/dto/**,**/model/**")
+    }
+}
+
 dependencies {
     implementation(kotlin("stdlib"))
 }
