@@ -5,7 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.8.3"
     kotlin("plugin.jpa") version "2.0.21"
-    id("org.sonarqube") version "5.0.0.4638"
+    id("org.sonarqube") version "4.4.1.3373"
 }
 
 val springBootVersion = "3.4.4"
@@ -81,7 +81,7 @@ kover {
         total {
             xml {
                 onCheck = true
-                xmlFile = file("${rootProject.buildDir}/reports/kover/report.xml")
+                xmlFile = file("${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml")
             }
         }
     }
@@ -97,11 +97,12 @@ sonarqube {
         property("sonar.sources", "src/main/kotlin")
         property("sonar.tests", "src/test/kotlin")
         property("sonar.coverage.jacoco.xmlReportPaths",
-            "${rootProject.buildDir}/reports/kover/report.xml")
+            "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml")
         property("sonar.exclusions",
             "**/generated/**,**/build/**,**/*Application.kt")
         property("sonar.cpd.exclusions",
             "**/dto/**,**/model/**")
+        property("sonar.gradle.skipCompile", "true")
     }
 }
 
