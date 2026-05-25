@@ -76,7 +76,7 @@ class ListingController(private val listingService: ListingService) {
     suspend fun analyzeImage(
         @RequestParam("image") image: MultipartFile
     ): ResponseEntity<AIListingSuggestion> {
-        if (image.isEmpty) throw IllegalArgumentException(IMAGE_EMPTY_ERROR)
+        require(!image.isEmpty) { IMAGE_EMPTY_ERROR }
         val base64Image = Base64.getEncoder().encodeToString(image.bytes)
         val mimeType = image.contentType ?: "application/octet-stream"
         val suggestion = listingService.analyzeImage("data:$mimeType;base64,$base64Image", mimeType)

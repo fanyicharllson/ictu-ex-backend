@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.Test
+
 plugins {
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.spring") version "2.0.21"
@@ -71,23 +73,26 @@ subprojects {
         jvmToolchain(21)
     }
 
-    // ROBUST SCANNER CONFIGURATION FOR MULTI-MODULE
+    // Wire Kover XML report generation after tests so Sonar always finds coverage data
+    tasks.withType<Test> {
+        finalizedBy(tasks.named("koverXmlReport"))
+    }
+
     sonarqube {
         properties {
-            // Main source folders usually exist, but check to be completely safe
             val mainSrc = file("src/main/kotlin")
-            if (mainSrc.exists()) {
-                property("sonar.sources", "src/main/kotlin")
-            }
+            if (mainSrc.exists()) property("sonar.sources", "src/main/kotlin")
 
-            // DYNAMIC FIX: Only inject test directory property if the module contains a test folder
             val testSrc = file("src/test/kotlin")
             if (testSrc.exists()) {
                 property("sonar.tests", "src/test/kotlin")
             } else {
-                // If no test folder exists, explicitly tell Sonar to avoid checking for tests here
                 property("sonar.tests", "")
             }
+
+            // Point each module to its own Kover XML report
+            val moduleReport = "${layout.buildDirectory.get().asFile}/reports/kover/report.xml"
+            property("sonar.coverage.jacoco.xmlReportPaths", moduleReport)
         }
     }
 }
@@ -126,9 +131,10 @@ sonarqube {
         property("sonar.projectVersion", "1.0.0")
         property("sonar.sourceEncoding", "UTF-8")
 
-        val koverReport = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
-        property("sonar.coverage.jacoco.xmlReportPaths", koverReport)
-        property("sonar.kotlin.coverage.reportPaths", koverReport)
+        val rootReport = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
+        val allReports = subprojects.map { "${it.layout.buildDirectory.get().asFile}/reports/kover/report.xml" }
+            .plus(rootReport).joinToString(",")
+        property("sonar.coverage.jacoco.xmlReportPaths", allReports)
 
         property("sonar.exclusions", "**/generated/**,**/build/**,**/*Application.kt")
         property("sonar.cpd.exclusions", "**/dto/**,**/model/**")

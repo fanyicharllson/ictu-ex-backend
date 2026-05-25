@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Authentication", description = "Student authentication endpoints")
 class AuthController(private val authService: AuthService) {
 
+    companion object {
+        private const val BEARER_PREFIX = "Bearer "
+    }
+
     @PostMapping("/register")
     @Operation(
         summary = "Register new ICTU student",
@@ -58,16 +62,11 @@ class AuthController(private val authService: AuthService) {
         ]
     )
     fun validate(@RequestHeader("Authorization") token: String): ResponseEntity<*> {
-        val bearerToken = token.removePrefix("Bearer ")
-        val user = authService.validateToken(bearerToken)
-        return if (user != null) {
-            ResponseEntity.ok(user)
-        } else {
-            ResponseEntity.notFound().build<Void>()
-        }
+        val user = authService.validateToken(token.removePrefix(BEARER_PREFIX))
+        return if (user != null) ResponseEntity.ok(user)
+        else ResponseEntity.notFound().build<Unit>()
     }
 
-    /* Method to update the user type(either to a seller or buyer)*/
     @PatchMapping("/user-type")
     @Operation(summary = "Update user role type")
     @SecurityRequirement(name = "bearerAuth")
@@ -75,12 +74,10 @@ class AuthController(private val authService: AuthService) {
         @RequestHeader("Authorization") token: String,
         @RequestBody request: UpdateUserTypeRequest
     ): ResponseEntity<AuthUser> {
-        val bearerToken = token.removePrefix("Bearer ")
-        val updatedUser = authService.updateUserType(bearerToken, request.userType)
+        val updatedUser = authService.updateUserType(token.removePrefix(BEARER_PREFIX), request.userType)
         return ResponseEntity.ok(updatedUser)
     }
 
-    /* Resend verification code token */
     @PostMapping("/resend-token")
     @Operation(summary = "Resend account verification code")
     fun resendToken(@RequestBody request: ResendTokenRequest): ResponseEntity<MessageResponse> {
@@ -88,7 +85,6 @@ class AuthController(private val authService: AuthService) {
         return ResponseEntity.ok(MessageResponse(message = "Verification code resent successfully!"))
     }
 
-    /* Verify the 6-digit code sent by email */
     @PostMapping("/verify-code")
     @Operation(summary = "Verify 6-digit email code")
     fun verifyCode(@RequestBody request: VerifyCodeRequest): ResponseEntity<MessageResponse> {
@@ -106,11 +102,9 @@ class AuthController(private val authService: AuthService) {
         ]
     )
     fun logout(@RequestHeader("Authorization") token: String): ResponseEntity<Map<String, String>> {
-        val bearerToken = token.removePrefix("Bearer ")
-        authService.logout(bearerToken)
+        authService.logout(token.removePrefix(BEARER_PREFIX))
         return ResponseEntity.ok(mapOf("message" to "Logged out successfully"))
     }
-
 }
 
 data class RegisterRequest(
@@ -131,20 +125,10 @@ data class LoginRequest(
     val password: String
 )
 
-data class UpdateUserTypeRequest(
-    val userType: String
-)
+data class UpdateUserTypeRequest(val userType: String)
 
-data class ResendTokenRequest(
-    val email: String
-)
+data class ResendTokenRequest(val email: String)
 
-data class VerifyCodeRequest(
-    val email: String,
-    val code: String
-)
+data class VerifyCodeRequest(val email: String, val code: String)
 
-data class MessageResponse(
-    val message: String
-)
-
+data class MessageResponse(val message: String)

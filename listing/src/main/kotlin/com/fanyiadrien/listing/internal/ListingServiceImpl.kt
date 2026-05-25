@@ -30,15 +30,14 @@ internal class ListingServiceImpl(
         private const val CACHE_KEY_ACTIVE = "listings:active"
         private const val CACHE_KEY_SEARCH_PREFIX = "listings:search:*"
         private const val IMAGE_SIZE_ERROR = "Image size exceeds the maximum allowed limit of 5MB."
-        const val NOT_OWNER_ERROR = "You are not the owner of this listing"
-        const val LISTING_STATUS_ACTIVE = "listings:active"
+        private const val NOT_OWNER_ERROR = "You are not the owner of this listing"
     }
 
     @PreAuthorize("isAuthenticated()")
     override fun createListing(request: CreateListingRequest, sellerId: UUID): Listing {
         request.imageUrls.forEach { imageUrl ->
-            if (isBase64(imageUrl) && estimateBase64BinarySize(imageUrl) > MAX_IMAGE_SIZE_BYTES) {
-                throw IllegalArgumentException(IMAGE_SIZE_ERROR)
+            if (isBase64(imageUrl)) {
+                require(estimateBase64BinarySize(imageUrl) <= MAX_IMAGE_SIZE_BYTES) { IMAGE_SIZE_ERROR }
             }
         }
 
@@ -52,11 +51,12 @@ internal class ListingServiceImpl(
             imageUrls = request.imageUrls.toMutableList()
         )
         val saved = listingRepository.save(entity)
+        val savedId = checkNotNull(saved.id) { "Listing ID not generated" }
 
         eventPublisher.publish(
             topic = KafkaTopics.PRODUCT_POSTED,
             event = ProductPostedEvent(
-                listingId = saved.id!!,
+                listingId = savedId,
                 sellerId = sellerId,
                 title = saved.title,
                 category = saved.category.name
@@ -67,7 +67,7 @@ internal class ListingServiceImpl(
             eventPublisher.publish(
                 topic = KafkaTopics.IMAGE_UPLOAD_REQUESTED,
                 event = ImageUploadEvent(
-                    listingId = saved.id!!,
+                    listingId = savedId,
                     originalImageUrl = imageUrl,
                     imageIndex = index
                 )
@@ -92,9 +92,7 @@ internal class ListingServiceImpl(
     override fun getListingById(id: UUID): Listing {
         val cacheKey = "listings:$id"
         val cached = cacheService.get(cacheKey)
-        if (cached != null) {
-            return objectMapper.readValue(cached, Listing::class.java)
-        }
+        if (cached != null) return objectMapper.readValue(cached, Listing::class.java)
         val listing = findOrThrow(id).toListing()
         cacheService.set(cacheKey, objectMapper.writeValueAsString(listing))
         return listing
@@ -163,17 +161,14 @@ internal class ListingServiceImpl(
     }
 
     @PreAuthorize("isAuthenticated()")
-    override suspend fun analyzeImage(base64Image: String, mimeType: String): AIListingSuggestion {
-        return geminiService.analyzeImage(base64Image, mimeType)
-    }
+    override suspend fun analyzeImage(base64Image: String, mimeType: String): AIListingSuggestion =
+        geminiService.analyzeImage(base64Image, mimeType)
 
     private fun findOrThrow(id: UUID): ListingEntity =
         listingRepository.findById(id).orElseThrow { NoSuchElementException("Listing not found: $id") }
 
-    private fun checkOwnership(entity: ListingEntity, sellerId: UUID) {
-        if (entity.sellerId != sellerId)
-            throw IllegalArgumentException(NOT_OWNER_ERROR)
-    }
+    private fun checkOwnership(entity: ListingEntity, sellerId: UUID) =
+        require(entity.sellerId == sellerId) { NOT_OWNER_ERROR }
 
     private fun parseCategory(value: String): ListingCategory =
         try { ListingCategory.valueOf(value.trim().uppercase()) }
@@ -194,7 +189,7 @@ internal class ListingServiceImpl(
         }
 
     private fun ListingEntity.toListing() = Listing(
-        id = id!!,
+        id = checkNotNull(id) { "Listing ID is null" },
         title = title,
         description = description,
         price = price,
@@ -207,7 +202,7 @@ internal class ListingServiceImpl(
         updatedAt = updatedAt
     )
 
-    private fun isBase64(url: String): Boolean = url.startsWith("data:") && url.contains(";base64,")
+    private fun isBase64(url: String) = url.startsWith("data:") && url.contains(";base64,")
 
     private fun estimateBase64BinarySize(base64String: String): Long {
         val cleanedBase64 = base64String.substringAfter(";base64,").replace("=", "")

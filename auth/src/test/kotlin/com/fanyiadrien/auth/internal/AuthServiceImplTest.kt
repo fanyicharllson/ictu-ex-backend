@@ -172,6 +172,21 @@ class AuthServiceImplTest {
         assertEquals(ErrorMessages.INVALID_CREDENTIALS, exception.message)
     }
 
+    @Test
+    fun `login throws exception for wrong password`() {
+        val email = "john@ictuniversity.edu.cm"
+        val user = buildUserEntity(
+            email = email,
+            passwordHash = passwordEncoder.encode("correctpassword")
+        )
+        whenever(userRepository.findByEmail(email)).thenReturn(user)
+
+        val exception = assertThrows<IllegalArgumentException> {
+            authService.login(email, "wrongpassword")
+        }
+        assertEquals(ErrorMessages.INVALID_CREDENTIALS, exception.message)
+    }
+
     // ==================== VALIDATE TOKEN TESTS ====================
 
     @Test

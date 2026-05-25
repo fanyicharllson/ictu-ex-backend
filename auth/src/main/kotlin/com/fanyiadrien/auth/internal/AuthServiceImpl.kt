@@ -45,15 +45,9 @@ internal class AuthServiceImpl(
         displayName: String,
         studentId: String
     ): AuthResult {
-
-        if (!isValidIctuEmail(email))
-            throw IllegalArgumentException(ErrorMessages.INVALID_EMAIL)
-
-        if (userRepository.existsByEmail(email))
-            throw IllegalArgumentException(ErrorMessages.EMAIL_ALREADY_REGISTERED)
-
-        if (userRepository.existsByStudentId(studentId))
-            throw IllegalArgumentException(ErrorMessages.STUDENT_ID_ALREADY_REGISTERED)
+        require(isValidIctuEmail(email)) { ErrorMessages.INVALID_EMAIL }
+        require(!userRepository.existsByEmail(email)) { ErrorMessages.EMAIL_ALREADY_REGISTERED }
+        require(!userRepository.existsByStudentId(studentId)) { ErrorMessages.STUDENT_ID_ALREADY_REGISTERED }
 
         val user = UserEntity(
             email = email,
@@ -69,12 +63,12 @@ internal class AuthServiceImpl(
         eventPublisher.publish(
             topic = KafkaTopics.VERIFICATION_CODE_GENERATED,
             event = VerificationCodeGeneratedEvent(
-                userId = savedUser.id ?: throw IllegalStateException(ErrorMessages.USER_ID_NOT_GENERATED),
+                userId = checkNotNull(savedUser.id) { ErrorMessages.USER_ID_NOT_GENERATED },
                 email = savedUser.email,
                 displayName = savedUser.displayName,
                 code = savedUser.verificationCode
                     ?: user.verificationCode
-                    ?: throw IllegalStateException(ErrorMessages.VERIFICATION_CODE_NOT_GENERATED)
+                    ?: error(ErrorMessages.VERIFICATION_CODE_NOT_GENERATED)
             )
         )
 
@@ -85,11 +79,12 @@ internal class AuthServiceImpl(
     override fun login(email: String, password: String): AuthResult {
         val user = userRepository.findByEmail(email)
             ?: throw IllegalArgumentException(ErrorMessages.INVALID_CREDENTIALS)
+        require(passwordEncoder.matches(password, user.passwordHash)) { ErrorMessages.INVALID_CREDENTIALS }
 
-        if (!passwordEncoder.matches(password, user.passwordHash))
-            throw IllegalArgumentException(ErrorMessages.INVALID_CREDENTIALS)
-
-        val token = jwtService.generateToken(user.id ?: throw IllegalStateException(ErrorMessages.USER_ID_IS_NULL), user.email)
+        val token = jwtService.generateToken(
+            checkNotNull(user.id) { ErrorMessages.USER_ID_IS_NULL },
+            user.email
+        )
         return AuthResult(token = token, user = user.toAuthUser(), message = "Login successfully!")
     }
 
@@ -100,8 +95,7 @@ internal class AuthServiceImpl(
     }
 
     override fun updateUserType(token: String, userType: String): AuthUser {
-        if (!jwtService.isTokenValid(token))
-            throw IllegalArgumentException(ErrorMessages.INVALID_TOKEN)
+        require(jwtService.isTokenValid(token)) { ErrorMessages.INVALID_TOKEN }
 
         val userId = jwtService.extractUserId(token)
         val existingUser = userRepository.findById(userId).orElseThrow {
@@ -125,13 +119,11 @@ internal class AuthServiceImpl(
                 updatedAt = Instant.now()
             )
         )
-
         return updatedUser.toAuthUser()
     }
 
-    override fun getUserById(userId: UUID): AuthUser? {
-        return userRepository.findById(userId).orElse(null)?.toAuthUser()
-    }
+    override fun getUserById(userId: UUID): AuthUser? =
+        userRepository.findById(userId).orElse(null)?.toAuthUser()
 
     override fun verifyCode(email: String, code: String): Boolean {
         val user = userRepository.findByEmail(email)
@@ -149,7 +141,7 @@ internal class AuthServiceImpl(
             eventPublisher.publish(
                 topic = KafkaTopics.USER_VERIFIED,
                 event = UserVerifiedEvent(
-                    userId = savedUser.id ?: throw IllegalStateException(ErrorMessages.USER_ID_NOT_GENERATED),
+                    userId = checkNotNull(savedUser.id) { ErrorMessages.USER_ID_NOT_GENERATED },
                     email = savedUser.email,
                     displayName = savedUser.displayName
                 )
@@ -163,8 +155,7 @@ internal class AuthServiceImpl(
     override fun resendVerificationCode(email: String) {
         val user = userRepository.findByEmail(email)
             ?: throw IllegalArgumentException(ErrorMessages.USER_NOT_FOUND)
-
-        if (user.isVerified) throw IllegalArgumentException(ErrorMessages.ACCOUNT_ALREADY_VERIFIED)
+        require(!user.isVerified) { ErrorMessages.ACCOUNT_ALREADY_VERIFIED }
 
         user.generateVerificationCode()
         user.updatedAt = Instant.now()
@@ -173,12 +164,12 @@ internal class AuthServiceImpl(
         eventPublisher.publish(
             topic = KafkaTopics.VERIFICATION_CODE_GENERATED,
             event = VerificationCodeGeneratedEvent(
-                userId = savedUser.id ?: throw IllegalStateException(ErrorMessages.USER_ID_NOT_GENERATED),
+                userId = checkNotNull(savedUser.id) { ErrorMessages.USER_ID_NOT_GENERATED },
                 email = savedUser.email,
                 displayName = savedUser.displayName,
                 code = savedUser.verificationCode
                     ?: user.verificationCode
-                    ?: throw IllegalStateException(ErrorMessages.VERIFICATION_CODE_NOT_GENERATED)
+                    ?: error(ErrorMessages.VERIFICATION_CODE_NOT_GENERATED)
             )
         )
     }
@@ -192,22 +183,19 @@ internal class AuthServiceImpl(
     }
 
     private fun UserEntity.toAuthUser() = AuthUser(
-        id = id ?: throw IllegalStateException(ErrorMessages.USER_ID_IS_NULL),
+        id = checkNotNull(id) { ErrorMessages.USER_ID_IS_NULL },
         email = email,
         displayName = displayName,
         studentId = studentId,
         userType = userType.name
     )
 
-    private fun isValidIctuEmail(email: String): Boolean {
-        return email.trim().endsWith("@ictuniversity.edu.cm")
-    }
+    private fun isValidIctuEmail(email: String) = email.trim().endsWith("@ictuniversity.edu.cm")
 
-    private fun parseUserType(userType: String): UserType {
-        return try {
+    private fun parseUserType(userType: String): UserType =
+        try {
             UserType.valueOf(userType.trim().uppercase())
         } catch (_: IllegalArgumentException) {
             throw IllegalArgumentException("User type must be STUDENT, BUYER or SELLER")
         }
-    }
 }

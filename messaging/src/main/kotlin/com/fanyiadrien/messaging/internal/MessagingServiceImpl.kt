@@ -37,8 +37,7 @@ internal class MessagingServiceImpl(
         otherUserId: UUID,
         listingId: UUID?
     ): ConversationView {
-        if (initiatorId == otherUserId)
-            throw IllegalArgumentException(MessagingErrors.CANNOT_MESSAGE_SELF)
+        require(initiatorId != otherUserId) { MessagingErrors.CANNOT_MESSAGE_SELF }
 
         val (first, second) = if (initiatorId.toString() < otherUserId.toString()) initiatorId to otherUserId
                               else otherUserId to initiatorId
@@ -60,11 +59,8 @@ internal class MessagingServiceImpl(
             IllegalArgumentException(MessagingErrors.CONVERSATION_NOT_FOUND)
         }
 
-        if (!conversation.hasParticipant(senderId))
-            throw IllegalArgumentException(MessagingErrors.NOT_A_PARTICIPANT)
-
-        if (content.isBlank())
-            throw IllegalArgumentException(MessagingErrors.EMPTY_MESSAGE)
+        require(conversation.hasParticipant(senderId)) { MessagingErrors.NOT_A_PARTICIPANT }
+        require(content.isNotBlank()) { MessagingErrors.EMPTY_MESSAGE }
 
         val receiverId = conversation.otherParticipant(senderId)
 
@@ -84,7 +80,7 @@ internal class MessagingServiceImpl(
         eventPublisher.publish(
             topic = KafkaTopics.MESSAGE_SENT,
             event = MessageSentEvent(
-                messageId = message.id!!,
+                messageId = checkNotNull(message.id) { "Message ID not generated" },
                 conversationId = conversationId,
                 senderId = senderId,
                 senderName = sender.displayName,
@@ -102,9 +98,7 @@ internal class MessagingServiceImpl(
         val conversation = conversationRepository.findById(conversationId).orElseThrow {
             IllegalArgumentException(MessagingErrors.CONVERSATION_NOT_FOUND)
         }
-
-        if (!conversation.hasParticipant(requesterId))
-            throw IllegalArgumentException(MessagingErrors.NOT_A_PARTICIPANT)
+        require(conversation.hasParticipant(requesterId)) { MessagingErrors.NOT_A_PARTICIPANT }
 
         return messageRepository
             .findByConversationIdOrderBySentAtAsc(conversationId)
@@ -123,7 +117,7 @@ internal class MessagingServiceImpl(
         if (participantA == userId) participantB else participantA
 
     private fun ConversationEntity.toView() = ConversationView(
-        id = id!!,
+        id = checkNotNull(id) { "Conversation ID is null" },
         participantA = participantA,
         participantB = participantB,
         listingId = listingId,
@@ -131,7 +125,7 @@ internal class MessagingServiceImpl(
     )
 
     private fun MessageEntity.toView() = MessageView(
-        id = id!!,
+        id = checkNotNull(id) { "Message ID is null" },
         conversationId = conversationId,
         senderId = senderId,
         content = content,
