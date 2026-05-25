@@ -96,6 +96,22 @@ subprojects {
             property("sonar.kotlin.coverage.reportPaths", centralReportFile)
         }
     }
+    tasks.withType<Test> {
+        useJUnitPlatform()
+
+        // LIMIT FORKED TEST JVM MEMORY
+        minHeapSize = "128m"
+        maxHeapSize = "512m"
+
+        // Force a fresh JVM process after every 10 tests to dump stale memory contexts
+        forkEvery = 10
+
+        testLogging {
+            events("started", "passed", "skipped", "failed")
+            showStandardStreams = true
+        }
+        finalizedBy(tasks.named("koverXmlReport"))
+    }
 }
 
 // Unified multi-project Kover configuration
