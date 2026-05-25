@@ -77,10 +77,8 @@ subprojects {
         jvmToolchain(21)
     }
 
-    // ROBUST RELATIVE PATH CONFIGURATION FOR SUBPROJECTS
     sonarqube {
         properties {
-            // Use simple relative paths so the Sonar container indexes them cleanly
             property("sonar.sources", "src/main/kotlin")
 
             val testSrc = file("src/test/kotlin")
@@ -90,20 +88,17 @@ subprojects {
                 property("sonar.tests", "")
             }
 
-            // Bind the shared root report path to every module instance
+            // CRITICAL SUBPROJECT FIX: Sonar requires the Kotlin-specific property to map child modules cleanly
             val centralReportFile = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
-            property("sonar.coverage.jacoco.xmlReportPaths", centralReportFile)
             property("sonar.kotlin.coverage.reportPaths", centralReportFile)
         }
     }
+
     tasks.withType<Test> {
         useJUnitPlatform()
 
-        // LIMIT FORKED TEST JVM MEMORY
         minHeapSize = "128m"
         maxHeapSize = "512m"
-
-        // Force a fresh JVM process after every 10 tests to dump stale memory contexts
         forkEvery = 10
 
         testLogging {
@@ -150,7 +145,7 @@ sonarqube {
         property("sonar.projectVersion", "1.0.0")
         property("sonar.sourceEncoding", "UTF-8")
 
-        // Target the master Kover XML output file
+        // CRITICAL ROOT FIX: Provide BOTH properties here to handle root-level mapping fallback
         val rootReport = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
         property("sonar.coverage.jacoco.xmlReportPaths", rootReport)
         property("sonar.kotlin.coverage.reportPaths", rootReport)
@@ -172,7 +167,7 @@ project(":ictu-ex-app") {
     }
 }
 
-// Ensure execution synchronization across the task lifecycle graph
+// Ensures the report aggregates metrics AFTER all tests finish executing
 tasks.named("koverXmlReport") {
     subprojects.forEach { sub ->
         mustRunAfter(sub.tasks.withType<Test>())
@@ -180,7 +175,7 @@ tasks.named("koverXmlReport") {
     }
 }
 
-// Force the parent sonar task to explicitly depend on the report compilation step
+// Ensures the scanner cannot transmit data until the final layout file is populated
 tasks.named("sonar") {
     dependsOn(tasks.named("koverXmlReport"))
 }
