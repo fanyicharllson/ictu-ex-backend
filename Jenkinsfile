@@ -47,13 +47,14 @@ pipeline {
         }
         stage('SonarCloud Analysis') {
             steps {
-                echo '🔍 Executing tests, merging coverage, and uploading logs to SonarCloud...'
+                echo '🔍 Executing build loop and uploading coverage...'
                 withCredentials([string(
                         credentialsId: 'sonar-token',
                         variable: 'SONAR_TOKEN'
                 )]) {
+                    // Simply triggering 'sonar' will now automatically cascade and run test/kover tasks first
                     sh '''
-                ./gradlew clean test koverXmlReport sonar :ictu-ex-app:bootJar \
+                ./gradlew clean sonar :ictu-ex-app:bootJar \
                   -Dsonar.token=$SONAR_TOKEN \
                   -Dsonar.projectKey=ictu-ex-backend \
                   -Dsonar.organization=fanyicharllson \

@@ -77,18 +77,23 @@ subprojects {
         jvmToolchain(21)
     }
 
-    // Configure submodule code boundaries dynamically
+    // ROBUST RELATIVE PATH CONFIGURATION FOR SUBPROJECTS
     sonarqube {
         properties {
-            val mainSrc = file("src/main/kotlin")
-            if (mainSrc.exists()) property("sonar.sources", mainSrc.absolutePath)
+            // Use simple relative paths so the Sonar container indexes them cleanly
+            property("sonar.sources", "src/main/kotlin")
 
             val testSrc = file("src/test/kotlin")
             if (testSrc.exists()) {
-                property("sonar.tests", testSrc.absolutePath)
+                property("sonar.tests", "src/test/kotlin")
             } else {
                 property("sonar.tests", "")
             }
+
+            // Bind the shared root report path to every module instance
+            val centralReportFile = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
+            property("sonar.coverage.jacoco.xmlReportPaths", centralReportFile)
+            property("sonar.kotlin.coverage.reportPaths", centralReportFile)
         }
     }
 }
@@ -119,7 +124,7 @@ kover {
     }
 }
 
-// Global Configuration handling multi-module analysis natively
+// Root Sonar configuration block
 sonarqube {
     properties {
         property("sonar.projectKey", "ictu-ex-backend")
@@ -129,7 +134,7 @@ sonarqube {
         property("sonar.projectVersion", "1.0.0")
         property("sonar.sourceEncoding", "UTF-8")
 
-        // Point to the central merged layout file for the entire project
+        // Target the master Kover XML output file
         val rootReport = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
         property("sonar.coverage.jacoco.xmlReportPaths", rootReport)
         property("sonar.kotlin.coverage.reportPaths", rootReport)
@@ -151,10 +156,15 @@ project(":ictu-ex-app") {
     }
 }
 
-//  Forces the root report to evaluate AFTER all submodule tests execute
+// Ensure execution synchronization across the task lifecycle graph
 tasks.named("koverXmlReport") {
     subprojects.forEach { sub ->
         mustRunAfter(sub.tasks.withType<Test>())
         dependsOn(sub.tasks.withType<Test>())
     }
+}
+
+// Force the parent sonar task to explicitly depend on the report compilation step
+tasks.named("sonar") {
+    dependsOn(tasks.named("koverXmlReport"))
 }
