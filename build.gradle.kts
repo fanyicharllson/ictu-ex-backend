@@ -45,6 +45,11 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlinx.kover")
     apply(plugin = "org.sonarqube")
 
+    // Enable dependency locking for all resolvable configurations (fixes S8569)
+    dependencyLocking {
+        lockAllConfigurations()
+    }
+
     dependencyManagement {
         imports {
             mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
@@ -80,12 +85,13 @@ subprojects {
 
     sonarqube {
         properties {
+            // Use absolute paths so Sonar finds files correctly in Jenkins CI
             val mainSrc = file("src/main/kotlin")
-            if (mainSrc.exists()) property("sonar.sources", "src/main/kotlin")
+            if (mainSrc.exists()) property("sonar.sources", mainSrc.absolutePath)
 
             val testSrc = file("src/test/kotlin")
             if (testSrc.exists()) {
-                property("sonar.tests", "src/test/kotlin")
+                property("sonar.tests", testSrc.absolutePath)
             } else {
                 property("sonar.tests", "")
             }
