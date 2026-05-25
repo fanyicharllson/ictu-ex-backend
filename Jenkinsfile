@@ -47,12 +47,11 @@ pipeline {
         }
         stage('SonarCloud Analysis') {
             steps {
-                echo '🔍 Running SonarCloud code analysis...'
+                echo '🔍 Running SonarCloud code analysis and packaging application...'
                 withCredentials([string(
                         credentialsId: 'sonar-token',
                         variable: 'SONAR_TOKEN'
                 )]) {
-                    // Added bootJar at the end to re-generate the artifacts after the clean phase
                     sh '''
                 ./gradlew clean koverXmlReport sonar :ictu-ex-app:bootJar \
                   -Dsonar.token=$SONAR_TOKEN \
