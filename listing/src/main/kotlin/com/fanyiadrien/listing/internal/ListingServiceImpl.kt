@@ -22,23 +22,24 @@ internal class ListingServiceImpl(
     private val eventPublisher: EventPublisher,
     private val cacheService: CacheService,
     private val objectMapper: ObjectMapper,
-    private val geminiService: GeminiService // Inject GeminiService
+    private val geminiService: GeminiService
 ) : ListingService {
 
-    // 5 MB limit for image uploads
-    private val MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024 // 5MB
+    companion object {
+        private const val MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+        private const val CACHE_KEY_ACTIVE = "listings:active"
+        private const val CACHE_KEY_SEARCH_PREFIX = "listings:search:*"
+        private const val IMAGE_SIZE_ERROR = "Image size exceeds the maximum allowed limit of 5MB."
+        const val NOT_OWNER_ERROR = "You are not the owner of this listing"
+        const val LISTING_STATUS_ACTIVE = "listings:active"
+    }
 
     @PreAuthorize("isAuthenticated()")
     override fun createListing(request: CreateListingRequest, sellerId: UUID): Listing {
-        // Validate image sizes before proceeding
         request.imageUrls.forEach { imageUrl ->
-            if (isBase64(imageUrl)) {
-                val estimatedSize = estimateBase64BinarySize(imageUrl)
-                if (estimatedSize > MAX_IMAGE_SIZE_BYTES) {
-                    throw IllegalArgumentException("Image size exceeds the maximum allowed limit of 5MB.")
-                }
+            if (isBase64(imageUrl) && estimateBase64BinarySize(imageUrl) > MAX_IMAGE_SIZE_BYTES) {
+                throw IllegalArgumentException(IMAGE_SIZE_ERROR)
             }
-            // For direct URLs, we typically rely on Cloudinary's limits or async validation
         }
 
         val entity = ListingEntity(
@@ -48,11 +49,10 @@ internal class ListingServiceImpl(
             category = parseCategory(request.category),
             condition = parseCondition(request.condition),
             sellerId = sellerId,
-            imageUrls = request.imageUrls.toMutableList() // Store original URLs for now
+            imageUrls = request.imageUrls.toMutableList()
         )
         val saved = listingRepository.save(entity)
 
-        // Publish event for product posted
         eventPublisher.publish(
             topic = KafkaTopics.PRODUCT_POSTED,
             event = ProductPostedEvent(
@@ -63,7 +63,6 @@ internal class ListingServiceImpl(
             )
         )
 
-        // Publish events for image uploads
         saved.imageUrls.forEachIndexed { index, imageUrl ->
             eventPublisher.publish(
                 topic = KafkaTopics.IMAGE_UPLOAD_REQUESTED,
@@ -80,14 +79,13 @@ internal class ListingServiceImpl(
     }
 
     override fun getAllActiveListings(): List<Listing> {
-        val cacheKey = "listings:active"
-        val cached = cacheService.get(cacheKey)
+        val cached = cacheService.get(CACHE_KEY_ACTIVE)
         if (cached != null) {
             return objectMapper.readValue(cached, objectMapper.typeFactory
                 .constructCollectionType(List::class.java, Listing::class.java))
         }
         val listings = listingRepository.findByStatus(ListingStatus.ACTIVE).map { it.toListing() }
-        cacheService.set(cacheKey, objectMapper.writeValueAsString(listings))
+        cacheService.set(CACHE_KEY_ACTIVE, objectMapper.writeValueAsString(listings))
         return listings
     }
 
@@ -123,8 +121,8 @@ internal class ListingServiceImpl(
         val saved = listingRepository.save(updated)
 
         cacheService.evict("listings:$id")
-        cacheService.evictByPattern("listings:active")
-        cacheService.evictByPattern("listings:search:*")
+        cacheService.evictByPattern(CACHE_KEY_ACTIVE)
+        cacheService.evictByPattern(CACHE_KEY_SEARCH_PREFIX)
         return saved.toListing()
     }
 
@@ -135,8 +133,8 @@ internal class ListingServiceImpl(
         listingRepository.delete(entity)
 
         cacheService.evict("listings:$id")
-        cacheService.evictByPattern("listings:active")
-        cacheService.evictByPattern("listings:search:*")
+        cacheService.evictByPattern(CACHE_KEY_ACTIVE)
+        cacheService.evictByPattern(CACHE_KEY_SEARCH_PREFIX)
     }
 
     override fun searchListings(title: String?, category: String?): List<Listing> {
@@ -174,7 +172,7 @@ internal class ListingServiceImpl(
 
     private fun checkOwnership(entity: ListingEntity, sellerId: UUID) {
         if (entity.sellerId != sellerId)
-            throw IllegalArgumentException("You are not the owner of this listing")
+            throw IllegalArgumentException(NOT_OWNER_ERROR)
     }
 
     private fun parseCategory(value: String): ListingCategory =
@@ -209,18 +207,10 @@ internal class ListingServiceImpl(
         updatedAt = updatedAt
     )
 
-    // Helper function to check if a string is a Base64 data URL
-    private fun isBase64(url: String): Boolean {
-        return url.startsWith("data:") && url.contains(";base64,")
-    }
+    private fun isBase64(url: String): Boolean = url.startsWith("data:") && url.contains(";base64,")
 
-    // Helper function to estimate binary size from a Base64 string
-    // Base64 string is approx 4/3 the size of the binary data
     private fun estimateBase64BinarySize(base64String: String): Long {
-        val base64Content = base64String.substringAfter(";base64,")
-        // Remove padding characters if present, as they don't contribute to data size
-        val cleanedBase64 = base64Content.replace("=", "")
-        // Each 4 Base64 characters represent 3 bytes of binary data
+        val cleanedBase64 = base64String.substringAfter(";base64,").replace("=", "")
         return (cleanedBase64.length * 3L) / 4L
     }
 }

@@ -15,6 +15,15 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
+internal object MessagingErrors {
+    const val CANNOT_MESSAGE_SELF = "Cannot start a conversation with yourself"
+    const val NOT_A_PARTICIPANT = "You are not a participant of this conversation"
+    const val CONVERSATION_NOT_FOUND = "Conversation not found"
+    const val EMPTY_MESSAGE = "Message content cannot be empty"
+    const val SENDER_NOT_FOUND = "Sender not found"
+    const val RECEIVER_NOT_FOUND = "Receiver not found"
+}
+
 @Service
 internal class MessagingServiceImpl(
     private val conversationRepository: ConversationRepository,
@@ -29,9 +38,8 @@ internal class MessagingServiceImpl(
         listingId: UUID?
     ): ConversationView {
         if (initiatorId == otherUserId)
-            throw IllegalArgumentException("Cannot start a conversation with yourself")
+            throw IllegalArgumentException(MessagingErrors.CANNOT_MESSAGE_SELF)
 
-        // Store with consistent ordering so (A,B) and (B,A) resolve to the same row
         val (first, second) = if (initiatorId.toString() < otherUserId.toString()) initiatorId to otherUserId
                               else otherUserId to initiatorId
 
@@ -49,14 +57,14 @@ internal class MessagingServiceImpl(
     @Transactional
     override fun sendMessage(conversationId: UUID, senderId: UUID, content: String): MessageView {
         val conversation = conversationRepository.findById(conversationId).orElseThrow {
-            IllegalArgumentException("Conversation not found")
+            IllegalArgumentException(MessagingErrors.CONVERSATION_NOT_FOUND)
         }
 
         if (!conversation.hasParticipant(senderId))
-            throw IllegalArgumentException("You are not a participant of this conversation")
+            throw IllegalArgumentException(MessagingErrors.NOT_A_PARTICIPANT)
 
         if (content.isBlank())
-            throw IllegalArgumentException("Message content cannot be empty")
+            throw IllegalArgumentException(MessagingErrors.EMPTY_MESSAGE)
 
         val receiverId = conversation.otherParticipant(senderId)
 
@@ -68,13 +76,11 @@ internal class MessagingServiceImpl(
             )
         )
 
-        // Fetch sender and receiver details to enrich the event
         val sender = authService.getUserById(senderId)
-            ?: throw IllegalStateException("Sender not found")
+            ?: throw IllegalStateException(MessagingErrors.SENDER_NOT_FOUND)
         val receiver = authService.getUserById(receiverId)
-            ?: throw IllegalStateException("Receiver not found")
+            ?: throw IllegalStateException(MessagingErrors.RECEIVER_NOT_FOUND)
 
-        // Event publishing
         eventPublisher.publish(
             topic = KafkaTopics.MESSAGE_SENT,
             event = MessageSentEvent(
@@ -94,11 +100,11 @@ internal class MessagingServiceImpl(
 
     override fun getMessages(conversationId: UUID, requesterId: UUID): List<MessageView> {
         val conversation = conversationRepository.findById(conversationId).orElseThrow {
-            IllegalArgumentException("Conversation not found")
+            IllegalArgumentException(MessagingErrors.CONVERSATION_NOT_FOUND)
         }
 
         if (!conversation.hasParticipant(requesterId))
-            throw IllegalArgumentException("You are not a participant of this conversation")
+            throw IllegalArgumentException(MessagingErrors.NOT_A_PARTICIPANT)
 
         return messageRepository
             .findByConversationIdOrderBySentAtAsc(conversationId)

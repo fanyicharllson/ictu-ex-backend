@@ -17,6 +17,10 @@ import java.util.UUID
 @Tag(name = "Listings", description = "Marketplace listing endpoints")
 class ListingController(private val listingService: ListingService) {
 
+    companion object {
+        private const val IMAGE_EMPTY_ERROR = "Image file cannot be empty."
+    }
+
     @PostMapping
     @Operation(summary = "Create a new marketplace listing")
     @SecurityRequirement(name = "bearerAuth")
@@ -49,7 +53,7 @@ class ListingController(private val listingService: ListingService) {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a listing")
     @SecurityRequirement(name = "bearerAuth")
-    fun deleteListing(@PathVariable id: UUID): ResponseEntity<Void> {
+    fun deleteListing(@PathVariable id: UUID): ResponseEntity<Unit> {
         listingService.deleteListing(id, currentUserId())
         return ResponseEntity.noContent().build()
     }
@@ -64,18 +68,17 @@ class ListingController(private val listingService: ListingService) {
         ResponseEntity.ok(listingService.searchListings(title, category))
 
     @PostMapping("/analyze-image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    @Operation(summary = "AI-powered listing analyzer",
-        description = "Upload item image, get AI-generated listing details (title, description, price, category, condition).")
+    @Operation(
+        summary = "AI-powered listing analyzer",
+        description = "Upload item image, get AI-generated listing details (title, description, price, category, condition)."
+    )
     @SecurityRequirement(name = "bearerAuth")
     suspend fun analyzeImage(
         @RequestParam("image") image: MultipartFile
     ): ResponseEntity<AIListingSuggestion> {
-        if (image.isEmpty) {
-            throw IllegalArgumentException("Image file cannot be empty.")
-        }
+        if (image.isEmpty) throw IllegalArgumentException(IMAGE_EMPTY_ERROR)
         val base64Image = Base64.getEncoder().encodeToString(image.bytes)
-        val mimeType = image.contentType ?: "application/octet-stream" // Default if not provided
-
+        val mimeType = image.contentType ?: "application/octet-stream"
         val suggestion = listingService.analyzeImage("data:$mimeType;base64,$base64Image", mimeType)
         return ResponseEntity.ok(suggestion)
     }

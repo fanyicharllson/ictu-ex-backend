@@ -1,7 +1,6 @@
 package com.fanyiadrien.listing.internal
 
 import com.cloudinary.Cloudinary
-import com.cloudinary.utils.ObjectUtils
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -16,17 +15,18 @@ internal class CloudinaryService(
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val cloudinary: Cloudinary by lazy {
-        Cloudinary(ObjectUtils.asMap(
-            "cloud_name", cloudName,
-            "api_key", apiKey,
-            "api_secret", apiSecret
-        ))
+        Cloudinary(
+            mapOf(
+                "cloud_name" to cloudName,
+                "api_key" to apiKey,
+                "api_secret" to apiSecret
+            )
+        )
     }
 
     fun uploadImage(imageUrl: String): String {
         return try {
-            // imageUrl can be a base64 string (data:image/png;base64,...) or a direct URL
-            val uploadResult = cloudinary.uploader().upload(imageUrl, ObjectUtils.emptyMap())
+            val uploadResult = cloudinary.uploader().upload(imageUrl, emptyMap<String, Any>())
             val secureUrl = uploadResult["secure_url"] as String
             log.debug("Image uploaded to Cloudinary: {}", secureUrl)
             secureUrl

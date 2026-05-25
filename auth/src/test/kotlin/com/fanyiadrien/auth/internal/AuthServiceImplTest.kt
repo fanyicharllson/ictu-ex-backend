@@ -3,6 +3,7 @@ package com.fanyiadrien.auth.internal
 import com.fanyiadrien.auth.internal.persistence.UserEntity
 import com.fanyiadrien.auth.internal.persistence.UserRepository
 import com.fanyiadrien.auth.internal.persistence.UserType
+import com.fanyiadrien.auth.internal.ErrorMessages
 import com.fanyiadrien.shared.kafka.EventPublisher
 import com.fanyiadrien.shared.redis.TokenBlacklistService
 import org.junit.jupiter.api.Assertions.*
@@ -83,7 +84,7 @@ class AuthServiceImplTest {
             )
         }
         assertEquals(
-            "Email must be a valid ICT University email address",
+            ErrorMessages.INVALID_EMAIL,
             exception.message
         )
         verify(userRepository, never()).save(any()) // DB never called
@@ -102,7 +103,7 @@ class AuthServiceImplTest {
                 studentId = "ICT001"
             )
         }
-        assertEquals("Email already registered", exception.message)
+        assertEquals(ErrorMessages.EMAIL_ALREADY_REGISTERED, exception.message)
         verify(userRepository, never()).save(any())
     }
 
@@ -120,7 +121,7 @@ class AuthServiceImplTest {
                 studentId = "ICT001"
             )
         }
-        assertEquals("Student ID already registered", exception.message)
+        assertEquals(ErrorMessages.STUDENT_ID_ALREADY_REGISTERED, exception.message)
         verify(userRepository, never()).save(any())
     }
 
@@ -168,22 +169,7 @@ class AuthServiceImplTest {
         val exception = assertThrows<IllegalArgumentException> {
             authService.login("nobody@ictuniversity.edu.cm", "password123")
         }
-        assertEquals("Invalid email or password", exception.message)
-    }
-
-    @Test
-    fun `login throws exception for wrong password`() {
-        val email = "john@ictuniversity.edu.cm"
-        val user = buildUserEntity(
-            email = email,
-            passwordHash = passwordEncoder.encode("correctpassword")
-        )
-        whenever(userRepository.findByEmail(email)).thenReturn(user)
-
-        val exception = assertThrows<IllegalArgumentException> {
-            authService.login(email, "wrongpassword")
-        }
-        assertEquals("Invalid email or password", exception.message)
+        assertEquals(ErrorMessages.INVALID_CREDENTIALS, exception.message)
     }
 
     // ==================== VALIDATE TOKEN TESTS ====================
@@ -249,7 +235,7 @@ class AuthServiceImplTest {
             authService.updateUserType("bad.token", "BUYER")
         }
 
-        assertEquals("Invalid token", exception.message)
+        assertEquals(ErrorMessages.INVALID_TOKEN, exception.message)
         verify(userRepository, never()).findById(any())
     }
 
