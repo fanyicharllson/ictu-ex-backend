@@ -43,7 +43,6 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "io.spring.dependency-management")
     apply(plugin = "org.jetbrains.kotlinx.kover")
-    // 1. MUST re-apply the plugin to subprojects so Sonar maps their code trees!
     apply(plugin = "org.sonarqube")
 
     dependencyLocking {
@@ -78,11 +77,7 @@ subprojects {
         jvmToolchain(21)
     }
 
-    tasks.withType<Test> {
-        finalizedBy(tasks.named("koverXmlReport"))
-    }
-
-    // 2. Safely configure subprojects to index files without crashing if test directories don't exist
+    // Configure submodule code boundaries dynamically
     sonarqube {
         properties {
             val mainSrc = file("src/main/kotlin")
@@ -134,11 +129,9 @@ sonarqube {
         property("sonar.projectVersion", "1.0.0")
         property("sonar.sourceEncoding", "UTF-8")
 
-        // 3. Point to the central merged layout file for the entire project
+        // Point to the central merged layout file for the entire project
         val rootReport = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
         property("sonar.coverage.jacoco.xmlReportPaths", rootReport)
-
-        // 4. Force Kotlin parsing coverage variables explicitly
         property("sonar.kotlin.coverage.reportPaths", rootReport)
 
         property("sonar.exclusions", "**/generated/**,**/build/**,**/*Application.kt")
@@ -155,5 +148,13 @@ project(":ictu-ex-app") {
         tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
             archiveFileName.set("ictu-ex-app-boot.jar")
         }
+    }
+}
+
+//  Forces the root report to evaluate AFTER all submodule tests execute
+tasks.named("koverXmlReport") {
+    subprojects.forEach { sub ->
+        mustRunAfter(sub.tasks.withType<Test>())
+        dependsOn(sub.tasks.withType<Test>())
     }
 }
