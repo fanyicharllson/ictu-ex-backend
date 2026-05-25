@@ -47,13 +47,14 @@ pipeline {
         }
         stage('SonarCloud Analysis') {
             steps {
-                echo '🔍 Running SonarCloud code analysis and packaging application...'
+                echo '🔍 Running tests, merging coverage, and uploading execution logs...'
                 withCredentials([string(
                         credentialsId: 'sonar-token',
                         variable: 'SONAR_TOKEN'
                 )]) {
+                    // Added explicit clean test execution block to force fresh XML report generation
                     sh '''
-                ./gradlew koverXmlReport sonar :ictu-ex-app:bootJar \
+                ./gradlew clean test koverXmlReport sonar :ictu-ex-app:bootJar \
                   -Dsonar.token=$SONAR_TOKEN \
                   -Dsonar.projectKey=ictu-ex-backend \
                   -Dsonar.organization=fanyicharllson \
