@@ -1,23 +1,26 @@
+val mockitoKotlinVersion = rootProject.extra["mockitoKotlinVersion"] as String
+val cloudinaryVersion = rootProject.extra["cloudinaryVersion"] as String
+val googleVertexAiVersion = rootProject.extra["googleVertexAiVersion"] as String
+
 dependencies {
     implementation(project(":shared"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.kafka:spring-kafka")
-    implementation("io.swagger.core.v3:swagger-annotations-jakarta:2.2.31")
-    implementation("com.cloudinary:cloudinary-http44:1.38.0") // Cloudinary SDK
-    implementation("com.google.cloud:google-cloud-vertexai:1.1.0") // Gemini API
-    implementation("org.springframework.boot:spring-boot-starter-webflux") // For WebClient
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin") // Moved from testImplementation
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("com.cloudinary:cloudinary-http44:$cloudinaryVersion")
+    implementation("com.google.cloud:google-cloud-vertexai:$googleVertexAiVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-    // testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin") // Removed from here
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
 }
 
 repositories {
     mavenCentral()
 }
+
 tasks.test {
     useJUnitPlatform()
 }

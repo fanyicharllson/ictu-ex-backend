@@ -9,6 +9,23 @@ plugins {
 }
 
 val springBootVersion = "3.4.4"
+val springModulithVersion = "1.3.0"
+val swaggerAnnotationsVersion = "2.2.31"
+val mockitoKotlinVersion = "5.4.0"
+val jjwtVersion = "0.12.6"
+val resendVersion = "3.1.0"
+val cloudinaryVersion = "1.38.0"
+val googleVertexAiVersion = "1.1.0"
+val springdocVersion = "2.8.6"
+
+extra["springModulithVersion"] = springModulithVersion
+extra["swaggerAnnotationsVersion"] = swaggerAnnotationsVersion
+extra["mockitoKotlinVersion"] = mockitoKotlinVersion
+extra["jjwtVersion"] = jjwtVersion
+extra["resendVersion"] = resendVersion
+extra["cloudinaryVersion"] = cloudinaryVersion
+extra["googleVertexAiVersion"] = googleVertexAiVersion
+extra["springdocVersion"] = springdocVersion
 
 allprojects {
     group = "com.fanyiadrien"
@@ -40,13 +57,13 @@ subprojects {
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.springframework.boot:spring-boot-starter")
-        implementation("org.springframework.modulith:spring-modulith-starter-core:1.3.0")
-        compileOnly("io.swagger.core.v3:swagger-annotations-jakarta:2.2.31")
+        implementation("org.springframework.modulith:spring-modulith-starter-core:$springModulithVersion")
+        compileOnly("io.swagger.core.v3:swagger-annotations-jakarta:$swaggerAnnotationsVersion")
 
         implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
-        testImplementation("org.springframework.modulith:spring-modulith-starter-test:1.3.0")
+        testImplementation("org.springframework.modulith:spring-modulith-starter-test:$springModulithVersion")
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 

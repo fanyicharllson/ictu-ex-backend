@@ -2,6 +2,8 @@ plugins {
     kotlin("plugin.jpa")
 }
 
+val mockitoKotlinVersion = rootProject.extra["mockitoKotlinVersion"] as String
+
 dependencies {
     implementation(project(":shared"))
     implementation(project(":auth"))
@@ -13,7 +15,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
 }
 
 tasks.test {

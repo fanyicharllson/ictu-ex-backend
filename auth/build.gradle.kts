@@ -1,6 +1,10 @@
 plugins {
     kotlin("plugin.jpa")
 }
+
+val jjwtVersion = rootProject.extra["jjwtVersion"] as String
+val mockitoKotlinVersion = rootProject.extra["mockitoKotlinVersion"] as String
+
 dependencies {
     implementation(project(":shared"))
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -8,28 +12,25 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.flywaydb:flyway-core")
-    implementation("io.swagger.core.v3:swagger-annotations-jakarta:2.2.31")
-
-    // Jackson Kotlin module for DTO deserialization
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-
-    runtimeOnly("org.postgresql:postgresql")
-    
-    // Test dependencies
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-    
     implementation(kotlin("stdlib"))
 
-    //jwt dependencies
-    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
+    // jwt dependencies
+    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
+
+    runtimeOnly("org.postgresql:postgresql")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
 }
+
 repositories {
     mavenCentral()
 }
+
 tasks.test {
     useJUnitPlatform()
 }
