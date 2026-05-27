@@ -41,7 +41,7 @@ pipeline {
             }
             post {
                 failure {
-                    echo '❌ Coverage below 90% — deployment BLOCKED'
+                    echo '❌ Coverage below 80% — deployment BLOCKED'
                 }
             }
         }
@@ -59,7 +59,8 @@ pipeline {
                   -Dsonar.organization=fanyicharllson \
                   -Dsonar.host.url=https://sonarcloud.io \
                   -Dsonar.cache.enabled=true \
-                  -Dsonar.scanner.metadataFilePath=build/sonar/report-task.txt \
+                  -Dsonar.scanner.metadataFilePath=${WORKSPACE}/build/sonar/report-task.txt \
+                  -Dsonar.analysis.mode=issues \
                   -x classes \
                   -x test
             '''

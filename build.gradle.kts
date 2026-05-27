@@ -120,7 +120,7 @@ kover {
     }
 }
 
-// Root Sonar configuration block (analyzes entire multi-module project as single unit)
+// Root Sonar configuration block (lets Gradle/Sonar discover module sources automatically)
 sonarqube {
     properties {
         property("sonar.projectKey", "ictu-ex-backend")
@@ -130,9 +130,6 @@ sonarqube {
         property("sonar.projectVersion", "1.0.0")
         property("sonar.sourceEncoding", "UTF-8")
 
-        // Include all submodule sources so SonarCloud analyzes them as part of root project
-        property("sonar.sources", "auth/src/main/kotlin,listing/src/main/kotlin,notification/src/main/kotlin,shared/src/main/kotlin,messaging/src/main/kotlin,sync/src/main/kotlin,ictu-ex-app/src/main/kotlin")
-        property("sonar.tests", "auth/src/test/kotlin,listing/src/test/kotlin,notification/src/test/kotlin,shared/src/test/kotlin,messaging/src/test/kotlin,sync/src/test/kotlin,ictu-ex-app/src/test/kotlin")
 
         // Point to the aggregated Kover report from root buildDir
         // Use BOTH properties: sonar.kotlin.coverage.reportPaths (Kotlin primary) and sonar.coverage.jacoco.xmlReportPaths (fallback)
