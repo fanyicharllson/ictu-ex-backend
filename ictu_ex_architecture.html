@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:transparent;font-family:"Anthropic Sans",sans-serif;font-size:11px;}
+.wrap{width:1100px;margin:0 auto;padding:10px 0;}
+h1{text-align:center;font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:2px;}
+h2{text-align:center;font-size:11px;font-weight:400;color:#444;margin-bottom:10px;}
+svg{display:block;width:100%;height:auto;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>ICTU-Ex — Smart Student Marketplace</h1>
+<h2>Event-Driven (Kafka) · Service-Oriented · Client–Server · DigitalOcean · Kubernetes · Spring Modulith · CI/CD</h2>
+<svg viewBox="0 0 1100 1380" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+  <path d="M2 2L8 5L2 8" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+  <path d="M2 2L8 5L2 8" fill="none" stroke="#e53935" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+  <path d="M2 2L8 5L2 8" fill="none" stroke="#1565c0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+  <path d="M2 2L8 5L2 8" fill="none" stroke="#2e7d32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<!-- ═══════════════════════════ ZONE BACKGROUNDS ═══════════════════════════ -->
+
+<!-- Client Layer BG -->
+<rect x="10" y="10" width="760" height="110" rx="12" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.2"/>
+<text x="385" y="30" text-anchor="middle" font-weight="600" font-size="12" fill="#0d47a1">Client Layer</text>
+
+<!-- CI/CD BG (right strip) -->
+<rect x="790" y="10" width="300" height="480" rx="12" fill="#e8f5e9" stroke="#81c784" stroke-width="1.2"/>
+<text x="940" y="30" text-anchor="middle" font-weight="600" font-size="12" fill="#1b5e20">CI/CD Pipeline</text>
+
+<!-- DigitalOcean main zone -->
+<rect x="10" y="135" width="760" height="1090" rx="14" fill="#e8eaf6" stroke="#5c6bc0" stroke-width="1.5" stroke-dasharray="7 4"/>
+<text x="20" y="153" font-size="10" fill="#3949ab" font-weight="500">DigitalOcean · Frankfurt · Ubuntu 24.04 · 167.172.99.14 · 4GB RAM / 2vCPU</text>
+
+<!-- Ansible box inside DO -->
+<rect x="22" y="160" width="230" height="120" rx="8" fill="#fff9c4" stroke="#f9a825" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="137" y="177" text-anchor="middle" font-weight="600" font-size="11" fill="#795548">Ansible — IaC</text>
+<text x="137" y="192" text-anchor="middle" font-size="9.5" fill="#6d4c41">Runs from dev laptop via SSH</text>
+<text x="30" y="210" font-size="9" fill="#6d4c41">playbook1: Java 21, Docker, Git</text>
+<text x="30" y="223" font-size="9" fill="#6d4c41">playbook2: Start Docker, k8s</text>
+<text x="30" y="236" font-size="9" fill="#6d4c41">playbook3: Health checks</text>
+<text x="30" y="249" font-size="9" fill="#6d4c41">playbook4: Full recovery (10 min)</text>
+<text x="30" y="265" font-size="9" fill="#6d4c41">→ SSH provisioning</text>
+
+<!-- Kubernetes cluster box -->
+<rect x="22" y="295" width="735" height="915" rx="12" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5" stroke-dasharray="8 4"/>
+<text x="389" y="313" text-anchor="middle" font-weight="600" font-size="11" fill="#0d47a1">Kubernetes Cluster · namespace: ictu-ex · Kubernetes</text>
+
+<!-- External Services BG -->
+<rect x="10" y="1240" width="1080" height="130" rx="12" fill="#fce4ec" stroke="#e91e63" stroke-width="1.2"/>
+<text x="540" y="1258" text-anchor="middle" font-weight="600" font-size="12" fill="#880e4f">External Services</text>
+
+<!-- ═══════════════════════════ CLIENT LAYER ═══════════════════════════ -->
+
+<!-- Android App -->
+<rect x="60" y="42" width="180" height="68" rx="8" fill="#bbdefb" stroke="#1565c0" stroke-width="1"/>
+<text x="150" y="62" text-anchor="middle" font-weight="600" font-size="11" fill="#0d47a1">Android App</text>
+<text x="150" y="76" text-anchor="middle" font-size="9.5" fill="#1565c0">Kotlin + Jetpack Compose</text>
+<text x="150" y="89" text-anchor="middle" font-size="9.5" fill="#1565c0">Firebase (offline-first)</text>
+<text x="150" y="102" text-anchor="middle" font-size="9.5" fill="#1565c0">Offline sync · Sensors</text>
+
+<!-- Developer Workstation -->
+<rect x="300" y="42" width="200" height="68" rx="8" fill="#cfd8dc" stroke="#455a64" stroke-width="1"/>
+<text x="400" y="62" text-anchor="middle" font-weight="600" font-size="11" fill="#263238">Developer Workstation</text>
+<text x="400" y="76" text-anchor="middle" font-size="9.5" fill="#37474f">IntelliJ IDEA Ultimate</text>
+<text x="400" y="89" text-anchor="middle" font-size="9.5" fill="#37474f">Kotlin + Spring Boot 3.4.4</text>
+<text x="400" y="102" text-anchor="middle" font-size="9.5" fill="#37474f">Docker Desktop (local dev)</text>
+
+<!-- Arrow: Android → Nginx -->
+<line x1="150" y1="110" x2="150" y2="328" stroke="#1565c0" stroke-width="1.4" marker-end="url(#arrB)"/>
+<rect x="57" y="212" width="95" height="14" rx="3" fill="#e3f2fd"/>
+<text x="105" y="222" text-anchor="middle" font-size="8.5" fill="#1565c0">HTTPS REST /api/**</text>
+
+<!-- Arrow: Dev → GitHub (CI/CD) -->
+<line x1="500" y1="76" x2="790" y2="76" stroke="#455a64" stroke-width="1.4" marker-end="url(#arr)"/>
+<text x="640" y="70" text-anchor="middle" font-size="8.5" fill="#455a64">git push origin main</text>
+
+<!-- ═══════════════════════════ CI/CD STRIP ═══════════════════════════ -->
+
+<!-- GitHub -->
+<rect x="830" y="42" width="220" height="58" rx="8" fill="#424242" stroke="#212121" stroke-width="1"/>
+<text x="940" y="62" text-anchor="middle" font-weight="600" font-size="11" fill="#ffffff">GitHub Repository</text>
+<text x="940" y="76" text-anchor="middle" font-size="9.5" fill="#bdbdbd">fanyicharllson/ictu-ex-backend</text>
+<text x="940" y="89" text-anchor="middle" font-size="9.5" fill="#bdbdbd">main branch</text>
+
+<line x1="940" y1="100" x2="940" y2="140" stroke="#388e3c" stroke-width="1.4" marker-end="url(#arrG)"/>
+<text x="955" y="125" font-size="8.5" fill="#2e7d32">webhook POST</text>
+
+<!-- Jenkins -->
+<rect x="830" y="140" width="220" height="130" rx="8" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+<text x="940" y="158" text-anchor="middle" font-weight="600" font-size="11" fill="#bf360c">Jenkins</text>
+<text x="940" y="171" text-anchor="middle" font-size="9" fill="#e65100">Docker container · Port 8080</text>
+<text x="845" y="187" font-size="9" fill="#bf360c">1. Checkout</text>
+<text x="845" y="200" font-size="9" fill="#bf360c">2. Build (Gradle)</text>
+<text x="845" y="213" font-size="9" fill="#bf360c">3. Test (JUnit)</text>
+<text x="845" y="226" font-size="9" fill="#bf360c">4. Coverage (Kover) min 90%</text>
+<text x="845" y="239" font-size="9" fill="#bf360c">5. Docker build &amp; push</text>
+<text x="845" y="252" font-size="9" fill="#bf360c">6. kubectl apply -f k8s/</text>
+
+<line x1="940" y1="270" x2="940" y2="310" stroke="#388e3c" stroke-width="1.4" marker-end="url(#arrG)"/>
+<text x="955" y="295" font-size="8.5" fill="#2e7d32">docker push :BUILD</text>
+
+<!-- Docker Hub -->
+<rect x="830" y="310" width="220" height="58" rx="8" fill="#e0f7fa" stroke="#00838f" stroke-width="1"/>
+<text x="940" y="330" text-anchor="middle" font-weight="600" font-size="11" fill="#006064">Docker Hub</text>
+<text x="940" y="344" text-anchor="middle" font-size="9.5" fill="#00838f">fanyicharllson/ictu-ex-backend</text>
+<text x="940" y="357" text-anchor="middle" font-size="9.5" fill="#00838f">Image registry · :latest</text>
+
+<line x1="940" y1="368" x2="940" y2="408" stroke="#388e3c" stroke-width="1.4" marker-end="url(#arrG)"/>
+<text x="955" y="393" font-size="8.5" fill="#2e7d32">deploy</text>
+
+<!-- VPS Infra -->
+<rect x="830" y="408" width="220" height="72" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+<text x="940" y="426" text-anchor="middle" font-weight="600" font-size="11" fill="#1b5e20">VPS Infrastructure</text>
+<text x="940" y="440" text-anchor="middle" font-size="9" fill="#2e7d32">Ubuntu 24.04 · 167.172.99.14</text>
+<text x="940" y="453" text-anchor="middle" font-size="9" fill="#2e7d32">Nginx reverse proxy + SSL/TLS</text>
+<text x="940" y="466" text-anchor="middle" font-size="9" fill="#2e7d32">kubectl pull &amp; deploy to k8s</text>
+
+<!-- Arrow from Docker Hub to K8s cluster -->
+<path d="M830 442 L790 442 L790 330" fill="none" stroke="#388e3c" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#arrG)"/>
+<text x="805" y="395" text-anchor="middle" font-size="8.5" fill="#2e7d32" transform="rotate(-90,805,395)">kubectl pull</text>
+
+<!-- ═══════════════════════════ NGINX (Row 1 inside k8s) ═══════════════════════════ -->
+<rect x="260" y="328" width="230" height="52" rx="8" fill="#b2dfdb" stroke="#00695c" stroke-width="1.2"/>
+<text x="375" y="349" text-anchor="middle" font-weight="600" font-size="11" fill="#004d40">Nginx — Reverse Proxy</text>
+<text x="375" y="363" text-anchor="middle" font-size="9.5" fill="#00695c">Port 30080 (NodePort) · SSL termination</text>
+<text x="375" y="376" text-anchor="middle" font-size="9" fill="#00695c">Routes all external traffic</text>
+
+<!-- Arrow Nginx → API Gateway -->
+<line x1="375" y1="380" x2="375" y2="415" stroke="#00695c" stroke-width="1.4" marker-end="url(#arr)"/>
+<text x="390" y="402" font-size="8.5" fill="#00695c">forward all requests</text>
+
+<!-- ═══════════════════════════ API GATEWAY (Row 2) ═══════════════════════════ -->
+<rect x="170" y="415" width="410" height="130" rx="8" fill="#ede7f6" stroke="#6a1b9a" stroke-width="1.2"/>
+<text x="375" y="433" text-anchor="middle" font-weight="600" font-size="11" fill="#4a148c">API Gateway Filter Chain</text>
+<text x="375" y="446" text-anchor="middle" font-size="9" fill="#6a1b9a">Spring Servlet Filter Layer</text>
+
+<!-- Filter 1 -->
+<rect x="185" y="452" width="370" height="24" rx="5" fill="#ce93d8" stroke="#7b1fa2" stroke-width="0.8"/>
+<text x="370" y="468" text-anchor="middle" font-size="9.5" fill="#4a148c">RateLimiterFilter — 60 req/min per IP · returns 429</text>
+<line x1="370" y1="476" x2="370" y2="484" stroke="#7b1fa2" stroke-width="1.2" marker-end="url(#arr)"/>
+<!-- Filter 2 -->
+<rect x="185" y="484" width="370" height="24" rx="5" fill="#ce93d8" stroke="#7b1fa2" stroke-width="0.8"/>
+<text x="370" y="500" text-anchor="middle" font-size="9.5" fill="#4a148c">JwtGatewayFilter — Bearer token · Redis blacklist · /api/auth/** public</text>
+<line x1="370" y1="508" x2="370" y2="516" stroke="#7b1fa2" stroke-width="1.2" marker-end="url(#arr)"/>
+<!-- Filter 3 -->
+<rect x="185" y="516" width="370" height="24" rx="5" fill="#ce93d8" stroke="#7b1fa2" stroke-width="0.8"/>
+<text x="370" y="532" text-anchor="middle" font-size="9.5" fill="#4a148c">RequestLoggingFilter — logs all incoming requests</text>
+
+<!-- Arrow API GW → Spring Boot -->
+<line x1="375" y1="545" x2="375" y2="578" stroke="#6a1b9a" stroke-width="1.4" marker-end="url(#arr)"/>
+<text x="390" y="566" font-size="8.5" fill="#6a1b9a">validated · rate-limited</text>
+
+<!-- ═══════════════════════════ SPRING BOOT PODS (Row 3) ═══════════════════════════ -->
+<!-- Replica shadow -->
+<rect x="37" y="586" width="700" height="200" rx="9" fill="#c5cae9" stroke="#303f9f" stroke-width="0.8"/>
+<!-- Main pod -->
+<rect x="30" y="578" width="700" height="200" rx="9" fill="#e8eaf6" stroke="#3f51b5" stroke-width="1.5"/>
+<text x="380" y="597" text-anchor="middle" font-weight="600" font-size="11" fill="#1a237e">Spring Boot Application Pods (x2 replicas) · Kotlin + Spring Boot 3.4.4 · Spring Modulith</text>
+<text x="380" y="610" text-anchor="middle" font-size="9.5" fill="#3f51b5">Port 8080 · readinessProbe: /actuator/health · livenessProbe: /actuator/health</text>
+
+<!-- Module boxes inside -->
+<!-- auth -->
+<rect x="42" y="622" width="118" height="70" rx="6" fill="#7986cb" stroke="#3f51b5" stroke-width="0.8"/>
+<text x="101" y="639" text-anchor="middle" font-weight="600" font-size="10" fill="#e8eaf6">auth</text>
+<text x="101" y="652" text-anchor="middle" font-size="8.5" fill="#c5cae9">register / login</text>
+<text x="101" y="664" text-anchor="middle" font-size="8.5" fill="#c5cae9">logout / JWT</text>
+<text x="101" y="682" text-anchor="middle" font-size="8" fill="#ffe082">→ publishes events</text>
+
+<!-- listing -->
+<rect x="172" y="622" width="118" height="70" rx="6" fill="#7986cb" stroke="#3f51b5" stroke-width="0.8"/>
+<text x="231" y="639" text-anchor="middle" font-weight="600" font-size="10" fill="#e8eaf6">listing</text>
+<text x="231" y="652" text-anchor="middle" font-size="8.5" fill="#c5cae9">CRUD · search</text>
+<text x="231" y="664" text-anchor="middle" font-size="8.5" fill="#c5cae9">Cloudinary upload</text>
+<text x="231" y="682" text-anchor="middle" font-size="8" fill="#ffe082">→ publishes events</text>
+
+<!-- messaging -->
+<rect x="302" y="622" width="118" height="70" rx="6" fill="#7986cb" stroke="#3f51b5" stroke-width="0.8"/>
+<text x="361" y="639" text-anchor="middle" font-weight="600" font-size="10" fill="#e8eaf6">messaging</text>
+<text x="361" y="652" text-anchor="middle" font-size="8.5" fill="#c5cae9">buyer-seller chat</text>
+<text x="361" y="664" text-anchor="middle" font-size="8.5" fill="#c5cae9">real-time</text>
+<text x="361" y="682" text-anchor="middle" font-size="8" fill="#ffe082">→ publishes events</text>
+
+<!-- notification -->
+<rect x="432" y="622" width="118" height="70" rx="6" fill="#7986cb" stroke="#3f51b5" stroke-width="0.8"/>
+<text x="491" y="639" text-anchor="middle" font-weight="600" font-size="10" fill="#e8eaf6">notification</text>
+<text x="491" y="652" text-anchor="middle" font-size="8.5" fill="#c5cae9">consumer group</text>
+<text x="491" y="664" text-anchor="middle" font-size="8.5" fill="#c5cae9">email via Resend</text>
+<text x="491" y="682" text-anchor="middle" font-size="8" fill="#ffe082">← subscribes events</text>
+
+<!-- shared -->
+<rect x="562" y="622" width="156" height="70" rx="6" fill="#7986cb" stroke="#3f51b5" stroke-width="0.8"/>
+<text x="640" y="639" text-anchor="middle" font-weight="600" font-size="10" fill="#e8eaf6">shared</text>
+<text x="640" y="652" text-anchor="middle" font-size="8.5" fill="#c5cae9">domain events · Kafka</text>
+<text x="640" y="664" text-anchor="middle" font-size="8.5" fill="#c5cae9">Redis · common models</text>
+<text x="640" y="682" text-anchor="middle" font-size="8.5" fill="#c5cae9">enforced boundaries</text>
+
+<!-- Labels for arrows from pods -->
+<!-- Arrow from auth module → Kafka -->
+<line x1="160" y1="692" x2="160" y2="780" stroke="#e53935" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrR)"/>
+<!-- Arrow from listing module → Kafka -->
+<line x1="248" y1="692" x2="248" y2="780" stroke="#e53935" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrR)"/>
+<!-- Arrow from messaging module → Kafka -->
+<line x1="361" y1="692" x2="361" y2="780" stroke="#e53935" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrR)"/>
+
+<!-- Arrow: Spring Boot → Redis -->
+<path d="M600 692 L600 720 L680 720 L680 805" fill="none" stroke="#ef6c00" stroke-width="1.3" marker-end="url(#arr)"/>
+<text x="648" y="715" font-size="8.5" fill="#ef6c00">cache R/W · blacklist</text>
+
+<!-- Arrow: notification → Resend (external) -->
+<path d="M491 692 L491 720 L940 720 L940 1250" fill="none" stroke="#8e24aa" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+<text x="700" y="714" font-size="8.5" fill="#8e24aa">HTTP API · welcome email</text>
+
+<!-- ═══════════════════════════ KAFKA (Center — Row 4) ═══════════════════════════ -->
+<rect x="30" y="780" width="430" height="145" rx="10" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+<text x="245" y="800" text-anchor="middle" font-weight="700" font-size="13" fill="#b71c1c">Apache Kafka 3.7</text>
+<text x="245" y="814" text-anchor="middle" font-size="9.5" fill="#c62828">KRaft Mode (no Zookeeper) · Port 9092</text>
+
+<!-- Topics -->
+<text x="50" y="834" font-size="10" font-weight="600" fill="#b71c1c">Topics (Publisher → Subscriber):</text>
+<rect x="42" y="840" width="390" height="20" rx="4" fill="#ef9a9a" stroke="#e53935" stroke-width="0.8"/>
+<text x="50" y="854" font-size="9" fill="#7f0000">PUBLISH  user.registered  →  SUBSCRIBE  notification-service  →  welcome email</text>
+<rect x="42" y="863" width="390" height="20" rx="4" fill="#ef9a9a" stroke="#e53935" stroke-width="0.8"/>
+<text x="50" y="877" font-size="9" fill="#7f0000">PUBLISH  product.posted   →  SUBSCRIBE  notification-service  →  buyer alert</text>
+<rect x="42" y="886" width="390" height="20" rx="4" fill="#ef9a9a" stroke="#e53935" stroke-width="0.8"/>
+<text x="50" y="900" font-size="9" fill="#7f0000">PUBLISH  message.sent     →  SUBSCRIBE  notification-service  →  push notification</text>
+
+<!-- Dead Letter Queue -->
+<rect x="42" y="909" width="390" height="12" rx="3" fill="#ffcdd2" stroke="#b71c1c" stroke-width="0.6" stroke-dasharray="3 2"/>
+<text x="237" y="919" text-anchor="middle" font-size="8.5" fill="#b71c1c">Dead Letter Queue (DLQ) — failed events → retry / alert</text>
+
+<!-- Arrow Kafka → notification module (consume back) -->
+<path d="M491 857 L491 840 L462 840" fill="none" stroke="#e53935" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrR)"/>
+<text x="472" y="835" font-size="8" fill="#b71c1c">consume</text>
+
+<!-- ═══════════════════════════ REDIS (Row 4 right) ═══════════════════════════ -->
+<rect x="475" y="780" width="270" height="145" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+<text x="610" y="800" text-anchor="middle" font-weight="700" font-size="12" fill="#bf360c">Redis 7.2</text>
+<text x="610" y="814" text-anchor="middle" font-size="9.5" fill="#e65100">Port 6379 · Max 128MB · allkeys-lru</text>
+<text x="490" y="832" font-size="9.5" fill="#bf360c">· JWT token blacklisting</text>
+<text x="490" y="847" font-size="9.5" fill="#bf360c">· Listing search cache (5 min TTL)</text>
+<text x="490" y="862" font-size="9.5" fill="#bf360c">· Rate limiting counters</text>
+
+<!-- ═══════════════════════════ MONGODB (Row 5) ═══════════════════════════ -->
+<rect x="30" y="945" width="250" height="100" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+<text x="155" y="965" text-anchor="middle" font-weight="700" font-size="12" fill="#1b5e20">MongoDB</text>
+<text x="155" y="979" text-anchor="middle" font-size="9.5" fill="#2e7d32">In-cluster · Port 27017</text>
+<text x="45" y="997" font-size="9.5" fill="#2e7d32">· Activity logs</text>
+<text x="45" y="1011" font-size="9.5" fill="#2e7d32">· Audit trails</text>
+<text x="45" y="1025" font-size="9.5" fill="#2e7d32">· Search history · Analytics events</text>
+<text x="45" y="1039" font-size="9" fill="#388e3c">Non-critical · Flexible schema</text>
+
+<!-- Arrow: Spring Boot → MongoDB -->
+<path d="M155 778 L155 945" fill="none" stroke="#2e7d32" stroke-width="1.2" marker-end="url(#arrG)"/>
+<text x="162" y="870" font-size="8.5" fill="#2e7d32">activity &amp; audit logs</text>
+
+<!-- ═══════════════════════════ MONITORING (Row 5 right) ═══════════════════════════ -->
+<!-- Prometheus -->
+<rect x="295" y="945" width="220" height="100" rx="10" fill="#fff8e1" stroke="#f57f17" stroke-width="1.5"/>
+<text x="405" y="965" text-anchor="middle" font-weight="700" font-size="12" fill="#e65100">Prometheus</text>
+<text x="405" y="979" text-anchor="middle" font-size="9.5" fill="#f57f17">Port 30090 (NodePort) · scrape 15s</text>
+<text x="310" y="997" font-size="9.5" fill="#e65100">· JVM heap / non-heap</text>
+<text x="310" y="1011" font-size="9.5" fill="#e65100">· HTTP request count</text>
+<text x="310" y="1025" font-size="9.5" fill="#e65100">· CPU usage</text>
+<text x="310" y="1039" font-size="9" fill="#f57f17">· Kafka consumer lag</text>
+
+<!-- Prometheus scrapes Spring Boot -->
+<path d="M375 945 L375 778" fill="none" stroke="#f57f17" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+<text x="320" y="870" font-size="8.5" fill="#f57f17">scrape /actuator/prometheus</text>
+
+<!-- Grafana -->
+<rect x="530" y="945" width="220" height="100" rx="10" fill="#fbe9e7" stroke="#bf360c" stroke-width="1.5"/>
+<text x="640" y="965" text-anchor="middle" font-weight="700" font-size="12" fill="#bf360c">Grafana</text>
+<text x="640" y="979" text-anchor="middle" font-size="9.5" fill="#e64a19">Port 30030 (NodePort)</text>
+<text x="545" y="997" font-size="9.5" fill="#bf360c">· App Uptime</text>
+<text x="545" y="1011" font-size="9.5" fill="#bf360c">· JVM Heap Memory</text>
+<text x="545" y="1025" font-size="9.5" fill="#bf360c">· CPU / Load Average</text>
+<text x="545" y="1039" font-size="9" fill="#bf360c">· Open File Descriptors</text>
+
+<!-- Grafana → Prometheus -->
+<line x1="530" y1="995" x2="515" y2="995" stroke="#bf360c" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="435" y="990" font-size="8.5" fill="#bf360c">PromQL queries</text>
+
+<!-- Arrow: Spring Boot → Managed PostgreSQL (external) -->
+<path d="M380 778 L380 1180 L250 1180 L250 1245" fill="none" stroke="#1565c0" stroke-width="1.3" marker-end="url(#arrB)"/>
+<text x="255" y="1185" font-size="8.5" fill="#1565c0">JDBC SSL · port 25060 · private network</text>
+
+<!-- Arrow: listing → Cloudinary -->
+<path d="M270 692 L270 750 L720 750 L720 1255" fill="none" stroke="#1565c0" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#arrB)"/>
+<text x="500" y="745" font-size="8.5" fill="#1565c0">HTTP multipart upload</text>
+
+<!-- Arrow: Android → Firebase -->
+<path d="M240 76 L760 76 L760 1280" fill="none" stroke="#f57f17" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+<text x="510" y="71" font-size="8.5" fill="#f57f17">SDK · offline sync · FCM</text>
+
+<!-- ═══════════════════════════ EXTERNAL SERVICES ═══════════════════════════ -->
+
+<!-- Managed PostgreSQL -->
+<rect x="20" y="1255" width="240" height="105" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+<text x="140" y="1274" text-anchor="middle" font-weight="600" font-size="11" fill="#0d47a1">DO Managed PostgreSQL 17</text>
+<text x="140" y="1288" text-anchor="middle" font-size="9" fill="#1565c0">Frankfurt · 1GB RAM / 1vCPU</text>
+<text x="30" y="1305" font-size="9" fill="#1565c0">· Primary + Standby (auto-failover)</text>
+<text x="30" y="1318" font-size="9" fill="#1565c0">· Daily backups · PgBouncer pooling</text>
+<text x="30" y="1331" font-size="9" fill="#1565c0">· SSL port 25060 · private network</text>
+<text x="30" y="1344" font-size="9" fill="#0d47a1">Tables: users · listings · messages</text>
+
+<!-- Resend Email -->
+<rect x="280" y="1255" width="180" height="105" rx="8" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1.5"/>
+<text x="370" y="1274" text-anchor="middle" font-weight="600" font-size="11" fill="#4a148c">Resend Email API</text>
+<text x="370" y="1290" text-anchor="middle" font-size="9" fill="#7b1fa2">Transactional emails</text>
+<text x="290" y="1308" font-size="9" fill="#7b1fa2">· Welcome email on register</text>
+<text x="290" y="1323" font-size="9" fill="#7b1fa2">· Notification emails</text>
+<text x="290" y="1338" font-size="9" fill="#7b1fa2">· Triggered by Kafka consumer</text>
+
+<!-- Cloudinary -->
+<rect x="480" y="1255" width="180" height="105" rx="8" fill="#e1f5fe" stroke="#0277bd" stroke-width="1.5"/>
+<text x="570" y="1274" text-anchor="middle" font-weight="600" font-size="11" fill="#01579b">Cloudinary</text>
+<text x="570" y="1290" text-anchor="middle" font-size="9" fill="#0277bd">Image hosting &amp; CDN</text>
+<text x="490" y="1308" font-size="9" fill="#0277bd">· Listing photos</text>
+<text x="490" y="1323" font-size="9" fill="#0277bd">· Student profile pictures</text>
+<text x="490" y="1338" font-size="9" fill="#0277bd">· Optimized delivery</text>
+
+<!-- Firebase -->
+<rect x="680" y="1255" width="180" height="105" rx="8" fill="#fff8e1" stroke="#f57f17" stroke-width="1.5"/>
+<text x="770" y="1274" text-anchor="middle" font-weight="600" font-size="11" fill="#e65100">Firebase</text>
+<text x="770" y="1290" text-anchor="middle" font-size="9" fill="#f57f17">Android offline-first sync</text>
+<text x="690" y="1308" font-size="9" fill="#f57f17">· Push notifications (FCM)</text>
+<text x="690" y="1323" font-size="9" fill="#f57f17">· Real-time updates</text>
+<text x="690" y="1338" font-size="9" fill="#f57f17">· Offline data sync</text>
+
+<!-- Resend notification arrow from Kafka consumer -->
+<path d="M491 778 L491 750 L370 750 L370 1255" fill="none" stroke="#8e24aa" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+<!-- Ansible → VPS arrow -->
+<path d="M252 220 L700 220 L700 442 L790 442" fill="none" stroke="#f9a825" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+<text x="480" y="215" font-size="8.5" fill="#795548">SSH provisioning</text>
+
+<!-- Legend box -->
+<rect x="760" y="950" width="260" height="155" rx="8" fill="#fafafa" stroke="#bdbdbd" stroke-width="1"/>
+<text x="890" y="968" text-anchor="middle" font-weight="600" font-size="10" fill="#333">Legend</text>
+<line x1="775" y1="980" x2="815" y2="980" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arrB)"/>
+<text x="820" y="984" font-size="9" fill="#444">Sync request flow</text>
+<line x1="775" y1="997" x2="815" y2="997" stroke="#e53935" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrR)"/>
+<text x="820" y="1001" font-size="9" fill="#444">Kafka publish/subscribe</text>
+<line x1="775" y1="1014" x2="815" y2="1014" stroke="#388e3c" stroke-width="1.5" marker-end="url(#arrG)"/>
+<text x="820" y="1018" font-size="9" fill="#444">CI/CD pipeline</text>
+<line x1="775" y1="1031" x2="815" y2="1031" stroke="#f57f17" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+<text x="820" y="1035" font-size="9" fill="#444">Monitoring scrape</text>
+<line x1="775" y1="1048" x2="815" y2="1048" stroke="#f9a825" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+<text x="820" y="1052" font-size="9" fill="#444">Ansible SSH provisioning</text>
+<rect x="775" y="1060" width="12" height="12" rx="2" fill="#e8eaf6" stroke="#3f51b5" stroke-width="0.8"/>
+<text x="820" y="1070" font-size="9" fill="#444">Kubernetes pod</text>
+<rect x="775" y="1077" width="12" height="12" rx="2" fill="#ffebee" stroke="#c62828" stroke-width="1.5"/>
+<text x="820" y="1087" font-size="9" fill="#444">Kafka — event bus (center)</text>
+<rect x="775" y="1094" width="12" height="12" rx="2" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+<text x="820" y="1104" font-size="9" fill="#444">Redis cache</text>
+
+<!-- Poly-repo label -->
+<rect x="760" y="1118" width="260" height="30" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="0.8"/>
+<text x="890" y="1128" text-anchor="middle" font-size="9" fill="#1b5e20">Poly-repo: frontend &amp; backend separate repos</text>
+<text x="890" y="1141" text-anchor="middle" font-size="9" fill="#1b5e20">Modular Monolith — Spring Modulith enforced</text>
+
+</svg>
+</div>
+</body>
+</html>
