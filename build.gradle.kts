@@ -43,7 +43,8 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "io.spring.dependency-management")
     apply(plugin = "org.jetbrains.kotlinx.kover")
-    apply(plugin = "org.sonarqube")
+    //  apply sonarqube plugin here — it causes path mapping issues with aggregated Kover reports.
+    // Sonar analysis happens only at root level (see root sonarqube block below).
 
     dependencyLocking {
         lockAllConfigurations()
@@ -77,22 +78,6 @@ subprojects {
         jvmToolchain(21)
     }
 
-    sonarqube {
-        properties {
-            property("sonar.sources", "src/main/kotlin")
-
-            val testSrc = file("src/test/kotlin")
-            if (testSrc.exists()) {
-                property("sonar.tests", "src/test/kotlin")
-            } else {
-                property("sonar.tests", "")
-            }
-
-            // CRITICAL SUBPROJECT FIX: Sonar requires the Kotlin-specific property to map child modules cleanly
-            val centralReportFile = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
-            property("sonar.kotlin.coverage.reportPaths", centralReportFile)
-        }
-    }
 
     tasks.withType<Test> {
         useJUnitPlatform()
@@ -135,7 +120,7 @@ kover {
     }
 }
 
-// Root Sonar configuration block
+// Root Sonar configuration block (analyzes entire multi-module project as single unit)
 sonarqube {
     properties {
         property("sonar.projectKey", "ictu-ex-backend")
@@ -145,13 +130,19 @@ sonarqube {
         property("sonar.projectVersion", "1.0.0")
         property("sonar.sourceEncoding", "UTF-8")
 
-        // CRITICAL ROOT FIX: Provide BOTH properties here to handle root-level mapping fallback
-        val rootReport = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
-        property("sonar.coverage.jacoco.xmlReportPaths", rootReport)
-        property("sonar.kotlin.coverage.reportPaths", rootReport)
+        // Include all submodule sources so SonarCloud analyzes them as part of root project
+        property("sonar.sources", "auth/src/main/kotlin,listing/src/main/kotlin,notification/src/main/kotlin,shared/src/main/kotlin,messaging/src/main/kotlin,sync/src/main/kotlin,ictu-ex-app/src/main/kotlin")
+        property("sonar.tests", "auth/src/test/kotlin,listing/src/test/kotlin,notification/src/test/kotlin,shared/src/test/kotlin,messaging/src/test/kotlin,sync/src/test/kotlin,ictu-ex-app/src/test/kotlin")
 
-        property("sonar.exclusions", "**/generated/**,**/build/**,**/*Application.kt")
-        property("sonar.cpd.exclusions", "**/dto/**,**/model/**")
+        // Point to the aggregated Kover report from root buildDir
+        // Use BOTH properties: sonar.kotlin.coverage.reportPaths (Kotlin primary) and sonar.coverage.jacoco.xmlReportPaths (fallback)
+        val koverReportPath = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
+        property("sonar.kotlin.coverage.reportPaths", koverReportPath)
+        property("sonar.coverage.jacoco.xmlReportPaths", koverReportPath)
+
+        // Exclude build artifacts, generated code, config, and application entry points
+        property("sonar.exclusions", "**/generated/**,**/build/**,**/*Application.kt,**/*ApplicationKt.kt")
+        property("sonar.cpd.exclusions", "**/dto/**,**/model/**,**/config/**")
     }
 }
 

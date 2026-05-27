@@ -25,7 +25,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo '🧪 Running tests...'
-                sh './gradlew test'
+                sh './gradlew test --no-daemon'
             }
             post {
                 always {
@@ -36,7 +36,7 @@ pipeline {
 
         stage('Coverage Check') {
             steps {
-                echo '📊 Checking coverage — 90% minimum required...'
+                echo '📊 Checking coverage — 80% minimum required...'
                 sh './gradlew koverVerify'
             }
             post {
@@ -58,6 +58,8 @@ pipeline {
                   -Dsonar.projectKey=ictu-ex-backend \
                   -Dsonar.organization=fanyicharllson \
                   -Dsonar.host.url=https://sonarcloud.io \
+                  -Dsonar.cache.enabled=true \
+                  -Dsonar.scanner.metadataFilePath=build/sonar/report-task.txt \
                   -x classes \
                   -x test
             '''
