@@ -120,24 +120,25 @@ kover {
     }
 }
 
-// Root Sonar configuration block (lets Gradle/Sonar discover module sources automatically)
+// Root Sonar configuration block (multi-module auto-discovery + aggregated Kover XML)
 sonarqube {
     properties {
-        property("sonar.projectKey", "ictu-ex-backend")
+        property("sonar.projectKey", "fanyicharllson_ictu-ex-backend")
         property("sonar.organization", "fanyicharllson")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.projectName", "ICTU-Ex Smart Student Marketplace")
         property("sonar.projectVersion", "1.0.0")
         property("sonar.sourceEncoding", "UTF-8")
 
-
-        // Point to the aggregated Kover report from root buildDir
-        // Use BOTH properties: sonar.kotlin.coverage.reportPaths (Kotlin primary) and sonar.coverage.jacoco.xmlReportPaths (fallback)
-        val koverReportPath = "${rootProject.layout.buildDirectory.get().asFile}/reports/kover/report.xml"
+        val koverReportPath = rootProject.layout.buildDirectory.file("reports/kover/report.xml").get().asFile.absolutePath
         property("sonar.kotlin.coverage.reportPaths", koverReportPath)
         property("sonar.coverage.jacoco.xmlReportPaths", koverReportPath)
 
-        // Exclude build artifacts, generated code, config, and application entry points
+        val junitReportPaths = subprojects
+            .map { "${it.projectDir}/build/test-results/test" }
+            .joinToString(",")
+        property("sonar.junit.reportPaths", junitReportPaths)
+
         property("sonar.exclusions", "**/generated/**,**/build/**,**/*Application.kt,**/*ApplicationKt.kt")
         property("sonar.cpd.exclusions", "**/dto/**,**/model/**,**/config/**")
     }

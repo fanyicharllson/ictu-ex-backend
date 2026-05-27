@@ -54,13 +54,9 @@ pipeline {
                 )]) {
                     sh '''
                 ./gradlew sonar \
-                  -Dsonar.token=$SONAR_TOKEN \
-                  -Dsonar.projectKey=ictu-ex-backend \
-                  -Dsonar.organization=fanyicharllson \
-                  -Dsonar.host.url=https://sonarcloud.io \
-                  -Dsonar.cache.enabled=true \
-                  -Dsonar.scanner.metadataFilePath=${WORKSPACE}/build/sonar/report-task.txt \
-                  -Dsonar.analysis.mode=issues \
+                  -Dsonar.login=$SONAR_TOKEN \
+                  -Dsonar.qualitygate.wait=false \
+                  --no-daemon \
                   -x classes \
                   -x test
             '''
