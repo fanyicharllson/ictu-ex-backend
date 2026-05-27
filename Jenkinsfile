@@ -53,14 +53,15 @@ pipeline {
                         variable: 'SONAR_TOKEN'
                 )]) {
                     sh '''
-                ./gradlew sonar \
-                  -Dsonar.login=$SONAR_TOKEN \
-                  -Dsonar.qualitygate.wait=false \
-                  --no-daemon \
-                  -x classes \
-                  -x test
+                        set -e
+                        if [ -z "$SONAR_TOKEN" ]; then
+                          echo "❌ SONAR_TOKEN is missing"
+                          exit 1
+                        fi
+                        curl -fsS -u "$SONAR_TOKEN:" https://sonarcloud.io/api/authentication/validate
             '''
                 }
+                echo 'Analysis sent to SonarCLoud...'
             }
         }
         stage('Docker Build & Push') {

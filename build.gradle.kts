@@ -134,10 +134,6 @@ sonarqube {
         property("sonar.kotlin.coverage.reportPaths", koverReportPath)
         property("sonar.coverage.jacoco.xmlReportPaths", koverReportPath)
 
-        val junitReportPaths = subprojects
-            .map { "${it.projectDir}/build/test-results/test" }
-            .joinToString(",")
-        property("sonar.junit.reportPaths", junitReportPaths)
 
         property("sonar.exclusions", "**/generated/**,**/build/**,**/*Application.kt,**/*ApplicationKt.kt")
         property("sonar.cpd.exclusions", "**/dto/**,**/model/**,**/config/**")
