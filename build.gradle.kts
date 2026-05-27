@@ -130,11 +130,6 @@ sonarqube {
         property("sonar.projectVersion", "1.0.0")
         property("sonar.sourceEncoding", "UTF-8")
 
-        // Explicitly list module source roots so the aggregated Kover XML can map coverage back to submodules.
-        property(
-            "sonar.sources",
-            "auth/src/main/kotlin,listing/src/main/kotlin,notification/src/main/kotlin,shared/src/main/kotlin,messaging/src/main/kotlin,sync/src/main/kotlin,ictu-ex-app/src/main/kotlin"
-        )
 
         // Relative path works best in GitHub Actions and on Jenkins because it stays anchored to the repo root.
         val koverReportPath = "build/reports/kover/report.xml"
