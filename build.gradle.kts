@@ -100,9 +100,14 @@ kover {
         filters {
             excludes {
                 classes(
+                    // Exclude extension files (don't need coverage)
+                    "*.*Extensions",
+                    "*.*Extension",
+                    // Exclude application entry points
                     "*.dto.*",
                     "*.config.*",
-                    "*.IctuExBackendApplicationKt"
+                    "*.IctuExBackendApplicationKt",
+                    "*.*ApplicationKt"
                 )
             }
         }
@@ -138,7 +143,7 @@ sonarqube {
 
 
         property("sonar.exclusions", "**/generated/**,**/build/**,**/*Application.kt,**/*ApplicationKt.kt")
-        property("sonar.cpd.exclusions", "**/dto/**,**/model/**,**/config/**")
+        property("sonar.cpd.exclusions", "**/dto/**,**/model/**,**/config/**,**/*Extensions.kt,**/*Extension.kt")
     }
 }
 
