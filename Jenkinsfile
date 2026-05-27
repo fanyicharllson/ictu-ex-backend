@@ -45,20 +45,21 @@ pipeline {
                 }
             }
         }
-        stage('SonarCloud Analysis') {
+        stage('SonarCloud Pipeline Analysis') {
             steps {
-                echo '🔍 Executing build loop and uploading coverage...'
+                echo '🔍 Connecting to SonarCloud analytics scanner engine...'
                 withCredentials([string(
                         credentialsId: 'sonar-token',
                         variable: 'SONAR_TOKEN'
                 )]) {
-                    // Simply triggering 'sonar' will now automatically cascade and run test/kover tasks first
                     sh '''
-                ./gradlew clean sonar :ictu-ex-app:bootJar \
+                ./gradlew sonar \
                   -Dsonar.token=$SONAR_TOKEN \
                   -Dsonar.projectKey=ictu-ex-backend \
                   -Dsonar.organization=fanyicharllson \
-                  -Dsonar.host.url=https://sonarcloud.io
+                  -Dsonar.host.url=https://sonarcloud.io \
+                  -x classes \
+                  -x test
             '''
                 }
             }
