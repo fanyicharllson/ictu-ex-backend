@@ -11,27 +11,27 @@ internal class ListingEntity(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    val id: UUID? = null,
+    var id: UUID? = null,
 
     @Column(nullable = false)
-    val title: String,
+    var title: String = "",
 
     @Column(columnDefinition = "TEXT")
-    val description: String,
+    var description: String = "",
 
     @Column(nullable = false, precision = 10, scale = 2)
-    val price: BigDecimal,
+    var price: BigDecimal = BigDecimal.ZERO,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val category: ListingCategory,
+    var category: ListingCategory = ListingCategory.TEXTBOOK,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val condition: ListingCondition,
+    var condition: ListingCondition = ListingCondition.GOOD,
 
     @Column(name = "seller_id", nullable = false)
-    val sellerId: UUID,
+    var sellerId: UUID = UUID(0L, 0L),
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -40,10 +40,10 @@ internal class ListingEntity(
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "listing_image_urls", joinColumns = [JoinColumn(name = "listing_id")])
     @Column(name = "image_url")
-    val imageUrls: MutableList<String> = mutableListOf(),
+    var imageUrls: MutableList<String> = mutableListOf(),
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: Instant = Instant.now(),
+    var createdAt: Instant = Instant.now(),
 
     @Column(name = "updated_at", nullable = false)
     var updatedAt: Instant = Instant.now()
