@@ -2,15 +2,14 @@ package com.fanyiadrien.ictuexbackend
 
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
-import io.restassured.module.kotlin.extensions.Given
-import io.restassured.module.kotlin.extensions.Then
-import io.restassured.module.kotlin.extensions.When
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import java.math.BigDecimal
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class E2EJourneyTest {
@@ -22,6 +21,10 @@ class E2EJourneyTest {
         const val TEST_EMAIL = "e2e.test@ictuniversity.edu.cm"
         const val TEST_PASSWORD = "SecurePassword123!"
         const val TEST_STUDENT_ID = "ICT2026E2E" // This might not be directly used in API calls but good to have for context
+        var journeyEmail: String = TEST_EMAIL
+        var journeyStudentId: String = TEST_STUDENT_ID
+        var journeyListingTitle: String = ""
+        var journeyListingDescription: String = ""
 
         @BeforeAll
         @JvmStatic
@@ -29,137 +32,148 @@ class E2EJourneyTest {
             RestAssured.baseURI = BASE_URL
             // Enable logging of request and response details if a validation fails
             RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
+
+            val suffix = System.currentTimeMillis()
+            journeyEmail = "e2e.test2.$suffix@ictuniversity.edu.cm"
+            journeyStudentId = "ICT20266E2E-$suffix"
+            journeyListingTitle = "Introduction to Kotlin E2E Testing - $suffix"
+            journeyListingDescription = "A clean, lightly used university textbook for E2E verification. Run: $suffix"
         }
     }
 
     @Test
     @Order(1)
-    fun `1_should_login_student_and_get_token`() {
-        val loginPayload = mapOf(
-            "email" to TEST_EMAIL,
-            "password" to TEST_PASSWORD
+    @DisplayName("Register a new ICTU student and capture the JWT token")
+    fun journey_step1_registerNewStudent() {
+        val registerPayload = mapOf(
+            "email" to journeyEmail,
+            "password" to TEST_PASSWORD,
+            "displayName" to "E2E Test Student",
+            "studentId" to journeyStudentId
         )
 
-        Given {
-            contentType(ContentType.JSON)
-            body(loginPayload)
-        } When {
-            post("/auth/login")
-        } Then {
-            statusCode(200)
-            body("token", notNullValue())
-        }.extract().response().also {
+        val response = RestAssured.given()
+            .contentType(ContentType.JSON)
+            .body(registerPayload)
+            .post("/api/auth/register")
+
+        response.then()
+            .statusCode(200)
+            .body("token", allOf(notNullValue(), not(blankOrNullString())))
+            .body("user.email", equalTo(journeyEmail))
+            .body("user.studentId", equalTo(journeyStudentId))
+
+        response.also {
             studentToken = it.jsonPath().getString("token")
-            println("Student Token: $studentToken")
         }
     }
 
     @Test
     @Order(2)
-    fun `2_should_create_new_listing`() {
-        val listingPayload = mapOf(
-            "title" to "E2E Test Listing - ${System.currentTimeMillis()}",
-            "description" to "This is a test listing created by E2E test.",
-            "price" to 100.0,
-            "category" to "BOOKS", // Assuming valid categories exist
-            "condition" to "USED", // Assuming valid conditions exist
-            "imageUrl" to "https://example.com/image.jpg",
-            "location" to "Buea",
-            "contactEmail" to TEST_EMAIL
+    @DisplayName("Login with the same credentials and receive a JWT token")
+    fun journey_step2_loginWithSameCredentials() {
+        val loginPayload = mapOf(
+            "email" to journeyEmail,
+            "password" to TEST_PASSWORD
         )
 
-        Given {
-            contentType(ContentType.JSON)
-            header("Authorization", "Bearer $studentToken")
-            body(listingPayload)
-        } When {
-            post("/listings")
-        } Then {
-            statusCode(201)
-            body("id", notNullValue())
-            body("title", equalTo(listingPayload["title"]))
-        }.extract().response().also {
-            listingId = it.jsonPath().getString("id")
-            println("Created Listing ID: $listingId")
+        val response = RestAssured.given()
+            .contentType(ContentType.JSON)
+            .body(loginPayload)
+            .post("/api/auth/login")
+
+        response.then()
+            .statusCode(200)
+            .body("token", allOf(notNullValue(), not(blankOrNullString())))
+            .body("user.email", equalTo(journeyEmail))
+
+        response.also {
+            studentToken = it.jsonPath().getString("token")
         }
     }
 
     @Test
     @Order(3)
-    fun `3_should_get_all_listings_and_find_created_one`() {
-        Given {
-            header("Authorization", "Bearer $studentToken")
-        } When {
-            get("/listings")
-        } Then {
-            statusCode(200)
-            body("content.id", hasItem(listingId)) // Assuming the response is paginated with a 'content' field
+    @DisplayName("Create a listing with the authenticated student token")
+    fun journey_step3_createListing() {
+        val listingPayload = mapOf(
+            "title" to journeyListingTitle,
+            "description" to journeyListingDescription,
+            "price" to BigDecimal("4500.00"),
+            "category" to "TEXTBOOK",
+            "condition" to "GOOD"
+        )
+
+        val response = RestAssured.given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer $studentToken")
+            .body(listingPayload)
+            .post("/api/listings")
+
+        response.then()
+            .statusCode(201)
+            .body("id", allOf(notNullValue(), not(blankOrNullString())))
+            .body("title", equalTo(journeyListingTitle))
+
+        response.also {
+            listingId = it.jsonPath().getString("id")
         }
     }
 
     @Test
     @Order(4)
-    fun `4_should_get_listing_by_id`() {
-        Given {
-            header("Authorization", "Bearer $studentToken")
-        } When {
-            get("/listings/$listingId")
-        } Then {
-            statusCode(200)
-            body("id", equalTo(listingId))
-            body("title", startsWith("E2E Test Listing"))
-        }
+    @DisplayName("Browse all listings and confirm the created listing is present")
+    fun journey_step4_browseListing() {
+        val response = RestAssured.given()
+            .header("Authorization", "Bearer $studentToken")
+            .get("/api/listings")
+
+        response.then()
+            .statusCode(200)
+            .body("id", hasItem(listingId))
     }
 
     @Test
     @Order(5)
-    fun `5_should_update_listing`() {
-        val updatedTitle = "E2E Test Listing Updated - ${System.currentTimeMillis()}"
-        val updatePayload = mapOf(
-            "title" to updatedTitle,
-            "description" to "This is an updated test listing.",
-            "price" to 120.0,
-            "category" to "ELECTRONICS", // Changed category
-            "condition" to "NEW", // Changed condition
-            "imageUrl" to "https://example.com/updated_image.jpg",
-            "location" to "Douala", // Changed location
-            "contactEmail" to TEST_EMAIL
-        )
-
-        Given {
-            contentType(ContentType.JSON)
-            header("Authorization", "Bearer $studentToken")
-            body(updatePayload)
-        } When {
-            put("/listings/$listingId")
-        } Then {
-            statusCode(200)
-            body("id", equalTo(listingId))
-            body("title", equalTo(updatedTitle))
-        }
+    @DisplayName("Fetch the created listing by ID and verify its data")
+    fun journey_step5_getListingById() {
+        RestAssured.given()
+            .header("Authorization", "Bearer $studentToken")
+            .get("/api/listings/$listingId")
+            .then()
+            .statusCode(200)
+            .body("id", equalTo(listingId))
+            .body("title", equalTo(journeyListingTitle))
     }
 
     @Test
     @Order(6)
-    fun `6_should_delete_listing`() {
-        Given {
-            header("Authorization", "Bearer $studentToken")
-        } When {
-            delete("/listings/$listingId")
-        } Then {
-            statusCode(204) // No Content for successful deletion
-        }
+    @DisplayName("Search listings and confirm the journey listing is returned")
+    fun journey_step6_searchListings() {
+        RestAssured.given()
+            .header("Authorization", "Bearer $studentToken")
+            .get("/api/listings/search?title=Kotlin&category=TEXTBOOK")
+            .then()
+            .statusCode(200)
+            .body("id", hasItem(listingId))
+            .body("size()", greaterThan(0))
     }
 
     @Test
     @Order(7)
-    fun `7_should_not_find_deleted_listing`() {
-        Given {
-            header("Authorization", "Bearer $studentToken")
-        } When {
-            get("/listings/$listingId")
-        } Then {
-            statusCode(404) // Not Found for a deleted resource
-        }
+    @DisplayName("Logout invalidates the token and validation is rejected")
+    fun journey_step7_logoutInvalidatesToken() {
+        RestAssured.given()
+            .header("Authorization", "Bearer $studentToken")
+            .post("/api/auth/logout")
+            .then()
+            .statusCode(200)
+            .body("message", containsString("Logged out"))
+
+        RestAssured.given()
+            .header("Authorization", "Bearer $studentToken")
+            .get("/api/auth/validate")
+            .then()
+            .statusCode(401)
     }
 }

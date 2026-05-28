@@ -1,3 +1,7 @@
+plugins {
+    kotlin("plugin.jpa")
+}
+
 val mockitoKotlinVersion = rootProject.extra["mockitoKotlinVersion"] as String
 val cloudinaryVersion = rootProject.extra["cloudinaryVersion"] as String
 val googleVertexAiVersion = rootProject.extra["googleVertexAiVersion"] as String
@@ -15,6 +19,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
+    implementation(kotlin("stdlib"))
 }
 
 repositories {

@@ -175,3 +175,6 @@ tasks.named("koverXmlReport") {
 tasks.named("sonar") {
     dependsOn(tasks.named("koverXmlReport"))
 }
+repositories {
+    mavenCentral()
+}

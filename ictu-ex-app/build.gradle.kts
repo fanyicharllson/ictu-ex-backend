@@ -6,9 +6,11 @@ plugins {
 val jjwtVersion = rootProject.extra["jjwtVersion"] as String
 val resendVersion = rootProject.extra["resendVersion"] as String
 val springdocVersion = rootProject.extra["springdocVersion"] as String
+val restAssuredVersion = rootProject.extra["restAssuredVersion"] as String // Added
+val hamcrestVersion = rootProject.extra["hamcrestVersion"] as String // Added
 
 springBoot {
-    mainClass.set("com.fanyiadrien.ictuexbackend.IctuExBackendApplicationKt")
+    mainClass.set("com.fanyiadrien.ictuexbackend.IctuExBackendApplication") // Corrected main class name
 }
 
 dependencies {
@@ -43,6 +45,13 @@ dependencies {
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    // RestAssured for API testing
+    testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")
+    testImplementation("io.rest-assured:kotlin-extensions:$restAssuredVersion")
+    testImplementation("io.rest-assured:json-path:$restAssuredVersion")
+    testImplementation("io.rest-assured:xml-path:$restAssuredVersion")
+    testImplementation("org.hamcrest:hamcrest:$hamcrestVersion")
 }
 
 tasks.test {
