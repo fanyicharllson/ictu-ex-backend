@@ -19,6 +19,8 @@ val resendVersion = "3.1.0"
 val cloudinaryVersion = "1.38.0"
 val googleVertexAiVersion = "1.1.0"
 val springdocVersion = "2.8.6"
+ val restAssuredVersion = "5.5.1" // Updated RestAssured version to match resolved transitive artifacts
+val hamcrestVersion = "2.2" // Added Hamcrest version
 
 extra["springModulithVersion"] = springModulithVersion
 extra["swaggerAnnotationsVersion"] = swaggerAnnotationsVersion
@@ -28,6 +30,8 @@ extra["resendVersion"] = resendVersion
 extra["cloudinaryVersion"] = cloudinaryVersion
 extra["googleVertexAiVersion"] = googleVertexAiVersion
 extra["springdocVersion"] = springdocVersion
+extra["restAssuredVersion"] = restAssuredVersion // Added to extra
+extra["hamcrestVersion"] = hamcrestVersion // Added to extra
 
 allprojects {
     group = "com.fanyiadrien"
