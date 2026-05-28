@@ -135,11 +135,12 @@ class ListingServiceImplTest {
     @Test
     fun `getListingById returns listing when found`() {
         val entity = buildEntity()
-        whenever(listingRepository.findById(entity.id!!)).thenReturn(Optional.of(entity))
+        val id = requireNotNull(entity.id)
+        whenever(listingRepository.findById(id)).thenReturn(Optional.of(entity))
 
-        val result = listingService.getListingById(entity.id)
+        val result = listingService.getListingById(id)
 
-        assertEquals(entity.id, result.id)
+        assertEquals(id, result.id)
         // verify(cacheService).set(eq("listings:${entity.id}"), any<String>(), eq(Duration.ofMinutes(5))) // Commented out for now
     }
 
@@ -157,17 +158,18 @@ class ListingServiceImplTest {
     @Test
     fun `getListingById returns cached result when cache hit`() {
         val entity = buildEntity()
+        val id = requireNotNull(entity.id)
         val listing = com.fanyiadrien.listing.Listing(
-            id = entity.id!!, title = entity.title, description = entity.description,
+            id = id, title = entity.title, description = entity.description,
             price = entity.price, category = entity.category.name, condition = entity.condition.name,
             sellerId = entity.sellerId, status = entity.status.name, imageUrls = emptyList(),
             createdAt = entity.createdAt, updatedAt = entity.updatedAt
         )
-        whenever(cacheService.get("listings:${entity.id}")).thenReturn(objectMapper.writeValueAsString(listing))
+        whenever(cacheService.get("listings:$id")).thenReturn(objectMapper.writeValueAsString(listing))
 
-        val result = listingService.getListingById(entity.id)
+        val result = listingService.getListingById(id)
 
-        assertEquals(entity.id, result.id)
+        assertEquals(id, result.id)
         verify(listingRepository, never()).findById(any())
     }
 
@@ -178,14 +180,15 @@ class ListingServiceImplTest {
         val sellerId = UUID.randomUUID()
         val entity = buildEntity(sellerId = sellerId)
         val request = UpdateListingRequest(title = "Updated Title", null, null, null, null, null, null)
+        val id = requireNotNull(entity.id)
 
-        whenever(listingRepository.findById(entity.id!!)).thenReturn(Optional.of(entity))
+        whenever(listingRepository.findById(id)).thenReturn(Optional.of(entity))
         whenever(listingRepository.save(any())).thenAnswer { it.arguments[0] as ListingEntity }
 
-        val result = listingService.updateListing(entity.id, request, sellerId)
+        val result = listingService.updateListing(id, request, sellerId)
 
         assertEquals("Updated Title", result.title)
-        verify(cacheService).evict("listings:${entity.id}")
+        verify(cacheService).evict("listings:$id")
         verify(cacheService).evictByPattern("listings:active")
     }
 
@@ -193,10 +196,11 @@ class ListingServiceImplTest {
     fun `updateListing throws when seller is not owner`() {
         val entity = buildEntity(sellerId = UUID.randomUUID())
         val differentSeller = UUID.randomUUID()
-        whenever(listingRepository.findById(entity.id!!)).thenReturn(Optional.of(entity))
+        val id = requireNotNull(entity.id)
+        whenever(listingRepository.findById(id)).thenReturn(Optional.of(entity))
 
         val exception = assertThrows<IllegalArgumentException> {
-            listingService.updateListing(entity.id, UpdateListingRequest(null, null, null, null, null, null, null), differentSeller)
+            listingService.updateListing(id, UpdateListingRequest(null, null, null, null, null, null, null), differentSeller)
         }
         assertEquals("You are not the owner of this listing", exception.message)
         verify(listingRepository, never()).save(any())
@@ -216,10 +220,11 @@ class ListingServiceImplTest {
     fun `updateListing throws for invalid status`() {
         val sellerId = UUID.randomUUID()
         val entity = buildEntity(sellerId = sellerId)
-        whenever(listingRepository.findById(entity.id!!)).thenReturn(Optional.of(entity))
+        val id = requireNotNull(entity.id)
+        whenever(listingRepository.findById(id)).thenReturn(Optional.of(entity))
 
         val exception = assertThrows<IllegalArgumentException> {
-            listingService.updateListing(entity.id, UpdateListingRequest(null, null, null, null, null, "INVALID_STATUS", null), sellerId)
+            listingService.updateListing(id, UpdateListingRequest(null, null, null, null, null, "INVALID_STATUS", null), sellerId)
         }
         assertTrue(exception.message!!.contains("Invalid status"))
     }
@@ -230,21 +235,23 @@ class ListingServiceImplTest {
     fun `deleteListing succeeds when seller is owner`() {
         val sellerId = UUID.randomUUID()
         val entity = buildEntity(sellerId = sellerId)
-        whenever(listingRepository.findById(entity.id!!)).thenReturn(Optional.of(entity))
+        val id = requireNotNull(entity.id)
+        whenever(listingRepository.findById(id)).thenReturn(Optional.of(entity))
 
-        listingService.deleteListing(entity.id, sellerId)
+        listingService.deleteListing(id, sellerId)
 
         verify(listingRepository).delete(entity)
-        verify(cacheService).evict("listings:${entity.id}")
+        verify(cacheService).evict("listings:$id")
     }
 
     @Test
     fun `deleteListing throws when seller is not owner`() {
         val entity = buildEntity(sellerId = UUID.randomUUID())
-        whenever(listingRepository.findById(entity.id!!)).thenReturn(Optional.of(entity))
+        val id = requireNotNull(entity.id)
+        whenever(listingRepository.findById(id)).thenReturn(Optional.of(entity))
 
         assertThrows<IllegalArgumentException> {
-            listingService.deleteListing(entity.id, UUID.randomUUID())
+            listingService.deleteListing(id, UUID.randomUUID())
         }
         verify(listingRepository, never()).delete(any())
     }
