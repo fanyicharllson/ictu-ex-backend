@@ -168,4 +168,54 @@ class SyncServiceImplTest {
         verify(syncRepository).countByUserId(userId)
         verify(syncRepository, never()).countByUserIdAndCreatedAtAfter(any(), any())
     }
+
+    @Test
+    fun `pullSync handles record with null payload gracefully`() {
+        val userId = UUID.randomUUID()
+        val lastSyncedAt = Instant.now().minusSeconds(3600)
+        val record = SyncRecord(
+            userId = userId,
+            entityType = "LISTING",
+            entityId = UUID.randomUUID(),
+            action = "CREATED",
+            payload = null,
+            createdAt = lastSyncedAt.plusSeconds(10)
+        )
+        whenever(syncRepository.findByUserIdAndCreatedAtAfter(userId, lastSyncedAt)).thenReturn(listOf(record))
+
+        val response = syncService.pullSync(userId, lastSyncedAt)
+
+        assertEquals(1, response.listings.size)
+        assertEquals("CREATED", response.listings[0]["action"])
+    }
+
+    @Test
+    fun `pullSync ignores unknown entity types`() {
+        val userId = UUID.randomUUID()
+        val lastSyncedAt = Instant.now().minusSeconds(3600)
+        val record = SyncRecord(
+            userId = userId,
+            entityType = "USER",
+            entityId = UUID.randomUUID(),
+            action = "CREATED",
+            payload = "{}",
+            createdAt = lastSyncedAt.plusSeconds(10)
+        )
+        whenever(syncRepository.findByUserIdAndCreatedAtAfter(userId, lastSyncedAt)).thenReturn(listOf(record))
+
+        val response = syncService.pullSync(userId, lastSyncedAt)
+
+        assertTrue(response.listings.isEmpty())
+        assertTrue(response.messages.isEmpty())
+    }
+
+    @Test
+    fun `heartbeat returns online status without touching repository`() {
+        val userId = UUID.randomUUID()
+        val response = syncService.heartbeat(userId)
+
+        assertEquals("online", response.status)
+        assertNotNull(response.serverTime)
+        verifyNoInteractions(syncRepository)
+    }
 }
