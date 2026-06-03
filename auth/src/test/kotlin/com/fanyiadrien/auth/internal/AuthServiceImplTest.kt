@@ -287,6 +287,159 @@ class AuthServiceImplTest {
         verify(eventPublisher).publish(any(), any())
     }
 
+    @Test
+    fun `verifyCode returns true immediately when already verified`() {
+        val user = buildUserEntity()
+        user.isVerified = true
+        whenever(userRepository.findByEmail(user.email)).thenReturn(user)
+
+        val result = authService.verifyCode(user.email, "any-code")
+
+        assertTrue(result)
+        verify(userRepository, never()).save(any())
+        verify(eventPublisher, never()).publish(any(), any())
+    }
+
+    @Test
+    fun `verifyCode throws for invalid code`() {
+        val user = buildUserEntity()
+        user.generateVerificationCode()
+        whenever(userRepository.findByEmail(user.email)).thenReturn(user)
+
+        val ex = assertThrows<IllegalArgumentException> {
+            authService.verifyCode(user.email, "WRONG-CODE")
+        }
+        assertEquals(ErrorMessages.INVALID_VERIFICATION_CODE, ex.message)
+        verify(userRepository, never()).save(any())
+    }
+
+    @Test
+    fun `verifyCode throws when user not found`() {
+        whenever(userRepository.findByEmail(any())).thenReturn(null)
+
+        val ex = assertThrows<IllegalArgumentException> {
+            authService.verifyCode("nobody@ictuniversity.edu.cm", "code")
+        }
+        assertEquals(ErrorMessages.USER_NOT_FOUND, ex.message)
+    }
+
+    // ==================== RESEND VERIFICATION CODE TESTS ====================
+
+    @Test
+    fun `resendVerificationCode sends code when user is unverified`() {
+        val user = buildUserEntity()
+        user.isVerified = false
+        whenever(userRepository.findByEmail(user.email)).thenReturn(user)
+        whenever(userRepository.save(any())).thenAnswer { it.arguments[0] as UserEntity }
+
+        authService.resendVerificationCode(user.email)
+
+        verify(userRepository).save(any())
+        verify(eventPublisher).publish(any(), any())
+    }
+
+    @Test
+    fun `resendVerificationCode throws when user is already verified`() {
+        val user = buildUserEntity()
+        user.isVerified = true
+        whenever(userRepository.findByEmail(user.email)).thenReturn(user)
+
+        val ex = assertThrows<IllegalArgumentException> {
+            authService.resendVerificationCode(user.email)
+        }
+        assertEquals(ErrorMessages.ACCOUNT_ALREADY_VERIFIED, ex.message)
+        verify(userRepository, never()).save(any())
+    }
+
+    @Test
+    fun `resendVerificationCode throws when user not found`() {
+        whenever(userRepository.findByEmail(any())).thenReturn(null)
+
+        val ex = assertThrows<IllegalArgumentException> {
+            authService.resendVerificationCode("nobody@ictuniversity.edu.cm")
+        }
+        assertEquals(ErrorMessages.USER_NOT_FOUND, ex.message)
+    }
+
+    // ==================== LOGOUT TESTS ====================
+
+    @Test
+    fun `logout blacklists token jti when token has remaining expiry`() {
+        whenever(jwtService.getRemainingExpiry("valid.token")).thenReturn(3600L)
+        whenever(jwtService.extractJti("valid.token")).thenReturn("jti-abc")
+
+        authService.logout("valid.token")
+
+        verify(tokenBlacklistService).blacklist("jti-abc", 3600L)
+    }
+
+    @Test
+    fun `logout does nothing when token is already expired`() {
+        whenever(jwtService.getRemainingExpiry("expired.token")).thenReturn(0L)
+
+        authService.logout("expired.token")
+
+        verify(tokenBlacklistService, never()).blacklist(any(), any())
+    }
+
+    @Test
+    fun `logout does nothing when jti is null`() {
+        whenever(jwtService.getRemainingExpiry("token")).thenReturn(3600L)
+        whenever(jwtService.extractJti("token")).thenReturn(null)
+
+        authService.logout("token")
+
+        verify(tokenBlacklistService, never()).blacklist(any(), any())
+    }
+
+    // ==================== GET USER BY ID TESTS ====================
+
+    @Test
+    fun `getUserById returns AuthUser when found`() {
+        val userId = UUID.randomUUID()
+        val user = buildUserEntity(id = userId)
+        whenever(userRepository.findById(userId)).thenReturn(Optional.of(user))
+
+        val result = authService.getUserById(userId)
+
+        assertNotNull(result)
+        assertEquals(userId, result?.id)
+    }
+
+    @Test
+    fun `getUserById returns null when not found`() {
+        val userId = UUID.randomUUID()
+        whenever(userRepository.findById(userId)).thenReturn(Optional.empty())
+
+        val result = authService.getUserById(userId)
+
+        assertNull(result)
+    }
+
+    // ==================== TOKEN DELEGATION TESTS (new AuthService methods) ====================
+
+    @Test
+    fun `isTokenValid delegates to jwtService`() {
+        whenever(jwtService.isTokenValid("token")).thenReturn(true)
+        assertTrue(authService.isTokenValid("token"))
+
+        whenever(jwtService.isTokenValid("bad")).thenReturn(false)
+        assertFalse(authService.isTokenValid("bad"))
+    }
+
+    @Test
+    fun `extractTokenJti delegates to jwtService`() {
+        whenever(jwtService.extractJti("token")).thenReturn("jti-123")
+        assertEquals("jti-123", authService.extractTokenJti("token"))
+    }
+
+    @Test
+    fun `extractTokenUserId delegates to jwtService`() {
+        val userId = UUID.randomUUID()
+        whenever(jwtService.extractUserId("token")).thenReturn(userId)
+        assertEquals(userId, authService.extractTokenUserId("token"))
+    }
+
     // ==================== HELPER ====================
 
     private fun buildUserEntity(

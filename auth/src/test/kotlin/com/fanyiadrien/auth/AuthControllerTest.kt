@@ -222,4 +222,25 @@ class AuthControllerTest {
             status { isBadRequest() }
         }
     }
+
+    @Test
+    fun `logout returns 200 and calls authService`() {
+        mockMvc.post("/api/auth/logout") {
+            header("Authorization", "Bearer mock.jwt.token")
+        }.andExpect {
+            status { isOk() }
+        }
+        verify(authService).logout("mock.jwt.token")
+    }
+
+    @Test
+    fun `validate returns 404 when token is invalid`() {
+        whenever(authService.validateToken(any())).thenReturn(null)
+
+        mockMvc.get("/api/auth/validate") {
+            header("Authorization", "Bearer bad.token")
+        }.andExpect {
+            status { isNotFound() }
+        }
+    }
 }

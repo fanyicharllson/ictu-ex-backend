@@ -81,4 +81,39 @@ class JwtServiceTest {
     fun `isTokenValid returns false for random string`() {
         assertFalse(jwtService.isTokenValid("not.a.jwt"))
     }
+
+    @Test
+    fun `extractJti returns non-null jti for valid token`() {
+        val token = jwtService.generateToken(UUID.randomUUID(), "test@ictuniversity.edu.cm")
+        val jti = jwtService.extractJti(token)
+        assertNotNull(jti)
+        assertTrue(jti!!.isNotBlank())
+    }
+
+    @Test
+    fun `extractJti returns null for invalid token`() {
+        val jti = jwtService.extractJti("not.a.valid.token")
+        assertNull(jti)
+    }
+
+    @Test
+    fun `getRemainingExpiry returns positive value for valid non-expired token`() {
+        val token = jwtService.generateToken(UUID.randomUUID(), "test@ictuniversity.edu.cm")
+        val remaining = jwtService.getRemainingExpiry(token)
+        assertTrue(remaining > 0)
+    }
+
+    @Test
+    fun `getRemainingExpiry returns 0 for expired token`() {
+        val expiredService = JwtService(secret, -1L)
+        val token = expiredService.generateToken(UUID.randomUUID(), "test@ictuniversity.edu.cm")
+        val remaining = expiredService.getRemainingExpiry(token)
+        assertEquals(0, remaining)
+    }
+
+    @Test
+    fun `getRemainingExpiry returns 0 for invalid token`() {
+        val remaining = jwtService.getRemainingExpiry("not.a.valid.token")
+        assertEquals(0, remaining)
+    }
 }

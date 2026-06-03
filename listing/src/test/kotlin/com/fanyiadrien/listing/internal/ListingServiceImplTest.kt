@@ -320,6 +320,49 @@ class ListingServiceImplTest {
         }
     }
 
+    @Test
+    fun `createListing throws when base64 image exceeds 5MB limit`() {
+        // A base64 string large enough to represent > 5MB binary
+        val bigBase64 = "data:image/png;base64," + "A".repeat(7_000_000)
+        val request = buildCreateRequest().copy(imageUrls = listOf(bigBase64))
+
+        val ex = assertThrows<IllegalArgumentException> {
+            listingService.createListing(request, UUID.randomUUID())
+        }
+        assertTrue(ex.message!!.contains("5MB"))
+        verify(listingRepository, never()).save(any())
+    }
+
+    @Test
+    fun `createListing skips size check for non-base64 url images`() {
+        val sellerId = UUID.randomUUID()
+        val request = buildCreateRequest().copy(imageUrls = listOf("https://cdn.example.com/image.jpg"))
+        val saved = buildEntity(sellerId = sellerId)
+        whenever(listingRepository.save(any())).thenReturn(saved)
+
+        // Should not throw — URL images skip the size check
+        val result = listingService.createListing(request, sellerId)
+        assertNotNull(result)
+    }
+
+    @Test
+    fun `searchListings returns cached result when cache hit`() {
+        val entity = buildEntity()
+        val listing = com.fanyiadrien.listing.Listing(
+            id = entity.id!!, title = entity.title, description = entity.description,
+            price = entity.price, category = entity.category.name, condition = entity.condition.name,
+            sellerId = entity.sellerId, status = entity.status.name, imageUrls = emptyList(),
+            createdAt = entity.createdAt, updatedAt = entity.updatedAt
+        )
+        val cacheKey = "listings:search:java:"
+        whenever(cacheService.get(cacheKey)).thenReturn(objectMapper.writeValueAsString(listOf(listing)))
+
+        val result = listingService.searchListings(title = "java", category = null)
+
+        assertEquals(1, result.size)
+        verify(listingRepository, never()).findByTitleContainingIgnoreCaseAndStatus(any(), any())
+    }
+
     // ==================== HELPERS ====================
 
     private fun buildCreateRequest(
