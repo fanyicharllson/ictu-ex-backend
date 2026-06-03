@@ -10,7 +10,7 @@ val restAssuredVersion = rootProject.extra["restAssuredVersion"] as String // Ad
 val hamcrestVersion = rootProject.extra["hamcrestVersion"] as String // Added
 
 springBoot {
-    mainClass.set("com.fanyiadrien.ictuexbackend.IctuExBackendApplication") // Corrected main class name
+    mainClass.set("com.fanyiadrien.ictuexbackend.IctuExBackendApplicationKt")
 }
 
 dependencies {

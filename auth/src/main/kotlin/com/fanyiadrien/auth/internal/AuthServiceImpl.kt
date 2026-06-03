@@ -182,6 +182,12 @@ internal class AuthServiceImpl(
         }
     }
 
+    override fun isTokenValid(token: String): Boolean = jwtService.isTokenValid(token)
+
+    override fun extractTokenJti(token: String): String? = jwtService.extractJti(token)
+
+    override fun extractTokenUserId(token: String): UUID = jwtService.extractUserId(token)
+
     private fun UserEntity.toAuthUser() = AuthUser(
         id = checkNotNull(id) { ErrorMessages.USER_ID_IS_NULL },
         email = email,
