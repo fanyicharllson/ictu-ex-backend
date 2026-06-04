@@ -16,6 +16,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.cloudinary:cloudinary-http44:$cloudinaryVersion")
     implementation("com.google.cloud:google-cloud-vertexai:$googleVertexAiVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor") // Added missing dependency
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")

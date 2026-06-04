@@ -18,6 +18,8 @@ import java.math.BigDecimal
 import java.time.Duration
 import java.util.Optional
 import java.util.UUID
+import com.fanyiadrien.listing.AIListingSuggestion
+import kotlinx.coroutines.runBlocking
 
 class ListingServiceImplTest {
 
@@ -37,6 +39,12 @@ class ListingServiceImplTest {
         listingService = ListingServiceImpl(listingRepository, eventPublisher, cacheService, objectMapper, geminiService)
         // Default: cache always misses
         whenever(cacheService.get(any())).thenReturn(null)
+        // Default: GeminiService returns a default suggestion
+        runBlocking {
+            whenever(geminiService.analyzeImage(any(), any())).thenReturn(
+                AIListingSuggestion("Suggested Item", "A marketplace item. Please provide more details.", 0.0, "OTHER", "FAIR")
+            )
+        }
     }
 
     // ==================== CREATE LISTING ====================

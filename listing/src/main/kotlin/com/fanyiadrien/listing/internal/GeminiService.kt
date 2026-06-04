@@ -70,21 +70,21 @@ internal class GeminiService(
         )
 
         return try {
-            val geminiApiResponse = geminiWebClient.post()
+            val clientResponse = geminiWebClient.post()
                 .uri("/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
-                .awaitExchange { clientResponse ->
-                    if (clientResponse.statusCode().is2xxSuccessful) {
-                        Mono.just(clientResponse.awaitBody<GeminiResponse>()) // Deserialize directly to GeminiResponse
-                    } else {
-                        val errorBody = clientResponse.awaitBody<String>()
-                        log.error("Gemini API error: {} - {}", clientResponse.statusCode(), errorBody)
-                        Mono.error(RuntimeException("Gemini API returned non-2xx status: ${clientResponse.statusCode()}"))
-                    }
-                }.block(Duration.ofSeconds(30)) // Block for a maximum of 30 seconds
+                .awaitExchange() // This is a suspend function that returns ClientResponse
 
-            val text = geminiApiResponse?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+            val geminiApiResponse = if (clientResponse.statusCode().is2xxSuccessful) {
+                clientResponse.awaitBody<GeminiResponse>() // This is a suspend function that returns GeminiResponse
+            } else {
+                val errorBody = clientResponse.awaitBody<String>()
+                log.error("Gemini API error: {} - {}", clientResponse.statusCode(), errorBody)
+                throw RuntimeException("Gemini API returned non-2xx status: ${clientResponse.statusCode()}")
+            }
+
+            val text = geminiApiResponse.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
 
             if (text.isNullOrBlank()) {
                 log.warn("Gemini API returned empty or invalid text content. Using fallback.")

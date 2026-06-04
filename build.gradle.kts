@@ -72,6 +72,7 @@ subprojects {
         compileOnly("io.swagger.core.v3:swagger-annotations-jakarta:$swaggerAnnotationsVersion")
 
         implementation("org.springframework.boot:spring-boot-starter-data-redis")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("org.springframework.modulith:spring-modulith-starter-test:$springModulithVersion")
