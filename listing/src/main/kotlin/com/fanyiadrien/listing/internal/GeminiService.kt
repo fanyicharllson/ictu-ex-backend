@@ -81,7 +81,7 @@ internal class GeminiService(
             } else {
                 val errorBody = clientResponse.awaitBody<String>()
                 log.error("Gemini API error: {} - {}", clientResponse.statusCode(), errorBody)
-                throw RuntimeException("Gemini API returned non-2xx status: ${clientResponse.statusCode()}")
+                throw RuntimeException("Gemini API returned non-2xx status, please check: ${clientResponse.statusCode()}")
             }
 
             val text = geminiApiResponse.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
