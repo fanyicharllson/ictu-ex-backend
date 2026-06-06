@@ -57,7 +57,7 @@ internal class GeminiService(
             "contents" to listOf(
                 mapOf(
                     "parts" to listOf(
-                        mapOf("text" to "Analyze this student marketplace item image. Return JSON with: title (string), description (string, max 100 words), suggestedPrice (number in FCFA), category (one of: TEXTBOOK, ELECTRONICS, HOSTEL_GEAR, OTHER), condition (one of: NEW, GOOD, FAIR). Only return valid JSON, no other text."),
+                        mapOf("text" to "Analyze this student marketplace item image. Return JSON with: title (string), description (string, max 100 words), suggestedPrice (number in FCFA), category (one of: TEXTBOOK, ELECTRONICS, HOSTEL_GEAR, OTHER), condition (one of: NEW, GOOD, FAIR). Only return valid JSON, no other text. Do it well"),
                         mapOf(
                             "inline_data" to mapOf(
                                 "mime_type" to mimeType,
